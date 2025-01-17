@@ -21,8 +21,11 @@ func init() {
 
 func main() {
 	e := echo.New()
-
+	// Groups Routes
 	userRoutes := e.Group("/user")
+	authRoutes := e.Group("/auth")
+
+	// User Routes
 	userRoutes.POST("/", func(c echo.Context) error {
 		// Pegar Nome e Email
 		user := user.UserController{DB: db}
@@ -55,6 +58,11 @@ func main() {
 			return c.String(code, err.Error())
 		}
 		return c.String(code, msg)
+	})
+
+	// Auth routes
+	authRoutes.POST("/", func(c echo.Context) error {
+		return c.String(200, "teste")
 	})
 
 	e.Logger.Fatal(e.Start(":3001"))
