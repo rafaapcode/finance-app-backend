@@ -2,7 +2,6 @@ package main
 
 import (
 	"github.com/labstack/echo/v4"
-	"github.com/rafaapcode/finance-app-backend/internal/user"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -21,44 +20,47 @@ func init() {
 
 func main() {
 	e := echo.New()
+
+	// Repos
+
 	// Groups Routes
-	userRoutes := e.Group("/user")
+	// userRoutes := e.Group("/user")
 	authRoutes := e.Group("/auth")
 
 	// User Routes
-	userRoutes.POST("/", func(c echo.Context) error {
-		// Pegar Nome e Email
-		user := user.UserController{DB: db}
-		msg, code, err := user.CreateUser()
-		if err != nil {
-			return c.String(code, err.Error())
-		}
-		return c.String(code, msg)
-	})
-	userRoutes.GET("/", func(c echo.Context) error {
-		user := user.UserController{DB: db}
-		msg, code, err := user.GetUser()
-		if err != nil {
-			return c.String(code, err.Error())
-		}
-		return c.String(code, msg)
-	})
-	userRoutes.PUT("/", func(c echo.Context) error {
-		user := user.UserController{DB: db}
-		msg, code, err := user.UpdateUser("", "")
-		if err != nil {
-			return c.String(code, err.Error())
-		}
-		return c.String(code, msg)
-	})
-	userRoutes.DELETE("/", func(c echo.Context) error {
-		user := user.UserController{DB: db}
-		msg, code, err := user.DeleteUser()
-		if err != nil {
-			return c.String(code, err.Error())
-		}
-		return c.String(code, msg)
-	})
+	// userRoutes.POST("/", func(c echo.Context) error {
+	// 	// Pegar Nome e Email
+	// 	user := user.UserController{DB: db}
+	// 	msg, code, err := user.CreateUser()
+	// 	if err != nil {
+	// 		return c.String(code, err.Error())
+	// 	}
+	// 	return c.String(code, msg)
+	// })
+	// userRoutes.GET("/", func(c echo.Context) error {
+	// 	user := user.UserController{DB: db}
+	// 	msg, code, err := user.GetUser()
+	// 	if err != nil {
+	// 		return c.String(code, err.Error())
+	// 	}
+	// 	return c.String(code, msg)
+	// })
+	// userRoutes.PUT("/", func(c echo.Context) error {
+	// 	user := user.UserController{DB: db}
+	// 	msg, code, err := user.UpdateUser("", "")
+	// 	if err != nil {
+	// 		return c.String(code, err.Error())
+	// 	}
+	// 	return c.String(code, msg)
+	// })
+	// userRoutes.DELETE("/", func(c echo.Context) error {
+	// 	user := user.UserController{DB: db}
+	// 	msg, code, err := user.DeleteUser()
+	// 	if err != nil {
+	// 		return c.String(code, err.Error())
+	// 	}
+	// 	return c.String(code, msg)
+	// })
 
 	// Auth routes
 	authRoutes.POST("/", func(c echo.Context) error {

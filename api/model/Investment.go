@@ -12,4 +12,7 @@ type Investment struct {
 	StockName  string    `json:"stockName"`
 	User       User      `json:"user"`
 	Date       time.Time `json:"date"`
+	CreatedAt  time.Time `json:"createdat"`
+	SupplyDate time.Time `json:"supplyDate"`
+	SellDate   time.Time `json:"sellDate"`
 }
