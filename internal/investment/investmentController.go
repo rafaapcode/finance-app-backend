@@ -7,7 +7,6 @@ import (
 )
 
 type InvestmenController struct {
-	Type       string
 	Category   string
 	Quantity   int
 	Userid     string

@@ -28,6 +28,6 @@ func (u UserRepo) DeleteUser(name string) (string, int, error) {
 	return "", 10, nil
 }
 
-func (u UserRepo) UpdateUser(newData model.User) (model.User, int, error) {
+func (u UserRepo) UpdateUser(name string, newData model.User) (model.User, int, error) {
 	return model.User{}, 10, nil
 }
