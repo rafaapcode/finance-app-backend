@@ -5,11 +5,9 @@ import (
 )
 
 type Income struct {
-	Id       string    `json:"id"`
-	Type     string    `json:"type"`
-	Category string    `json:"category"`
-	Value    float64   `json:"value"`
-	Date     time.Time `json:"date"`
-	Userid   string    `json:"userid"`
-	User     User      `json:"user"`
+	Id        string    `json:"id"`
+	Value     float64   `json:"value"`
+	CreatedAt time.Time `json:"createdAt"`
+	Userid    string    `json:"userid"`
+	User      User      `json:"user"`
 }

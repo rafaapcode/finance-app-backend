@@ -8,9 +8,10 @@ import (
 )
 
 type UserController struct {
-	Name  string
-	Email string
-	Repo  UserRepository
+	Name     string
+	Email    string
+	PhotoUrl string
+	Repo     UserRepository
 }
 
 func (controllerUser UserController) CreateUser() (model.User, int, error) {

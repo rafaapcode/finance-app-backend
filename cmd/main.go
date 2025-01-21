@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/labstack/echo/v4"
+	"github.com/rafaapcode/finance-app-backend/config"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -9,7 +10,10 @@ import (
 var db *gorm.DB
 
 func init() {
-	dsn := "host=localhost user=root password=root dbname=finances port=5433 sslmode=disable TimeZone=America/Sao_Paulo"
+	dsn, err := config.GetDSN()
+	if err != nil {
+		panic("Error to read the environment variables")
+	}
 	database, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
 		panic("Error to connect with database")
@@ -66,6 +70,9 @@ func main() {
 	authRoutes.POST("/", func(c echo.Context) error {
 		return c.String(200, "teste")
 	})
-
-	e.Logger.Fatal(e.Start(":3001"))
+	port, err := config.GetPort()
+	if err != nil {
+		panic("Error to read the environment variables")
+	}
+	e.Logger.Fatal(e.Start(port))
 }

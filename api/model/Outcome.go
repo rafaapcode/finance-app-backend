@@ -15,5 +15,4 @@ type Outcome struct {
 	User          User      `json:"user"`
 	ExpireDate    time.Time `json:"expireDate"`
 	CreatedAt     time.Time `json:"createdAt"`
-	Date          time.Time `json:"date"`
 }
