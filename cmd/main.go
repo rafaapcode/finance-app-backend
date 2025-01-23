@@ -3,12 +3,13 @@ package main
 import (
 	"time"
 
+	"github.com/joho/godotenv"
 	"github.com/labstack/echo/v4"
-	"github.com/rafaapcode/finance-app-backend/api/model"
 	"github.com/rafaapcode/finance-app-backend/config"
-	"github.com/rafaapcode/finance-app-backend/internal/income"
-	"github.com/rafaapcode/finance-app-backend/internal/outcome"
-	"github.com/rafaapcode/finance-app-backend/internal/user"
+	"github.com/rafaapcode/finance-app-backend/internal/controllers/goals"
+	"github.com/rafaapcode/finance-app-backend/internal/controllers/income"
+	"github.com/rafaapcode/finance-app-backend/internal/controllers/outcome"
+	"github.com/rafaapcode/finance-app-backend/internal/controllers/user"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -16,10 +17,12 @@ import (
 var db *gorm.DB
 
 func init() {
-	dsn, err := config.GetDSN()
+	err := godotenv.Load()
+
 	if err != nil {
-		panic("Error to read the environment variables")
+		panic("Error to load the environment variables")
 	}
+	dsn := config.GetDSN()
 	database, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
 		panic("Error to connect with database")
@@ -31,18 +34,25 @@ func init() {
 func main() {
 	e := echo.New()
 
+	// Health Endpoint
+	e.GET("/health", func(c echo.Context) error {
+		return c.String(200, "Your API is HEALTHY!")
+	})
+
 	// Repos
 	userRepo := user.UserRepo{
 		DB: db,
 	}
 	outcomeRepo := outcome.OutcomeRepo{DB: db}
 	incomeRepo := income.IncomeRepo{DB: db}
+	goalsRepo := goals.GoalsRepo{DB: db}
 
 	// Groups Routes
 	userRoutes := e.Group("/user")
 	authRoutes := e.Group("/auth")
 	outcomeRoutes := e.Group("/outcome")
 	incomeRoutes := e.Group("/income")
+	goalsRoutes := e.Group("/goals")
 
 	// User Routes
 	userRoutes.POST("/", func(c echo.Context) error {
@@ -119,7 +129,7 @@ func main() {
 		incomeController := income.IncomeController{Repo: incomeRepo}
 
 		// Criando Outcome
-		incomeController.CreateIncome(model.Income{})
+		incomeController.CreateIncome()
 		return c.String(200, "teste")
 	})
 	incomeRoutes.GET("/total", func(c echo.Context) error {
@@ -130,9 +140,16 @@ func main() {
 		return c.String(200, "teste")
 	})
 
-	port, err := config.GetPort()
-	if err != nil {
-		panic("Error to read the environment variables")
-	}
+	// Goals Routes
+	goalsRoutes.POST("/", func(c echo.Context) error {
+		goalsController := goals.GoalsController{Repo: goalsRepo}
+
+		// Create a Goals
+		goalsController.CreateGoal()
+
+		return c.String(200, "")
+	})
+
+	port := config.GetPort()
 	e.Logger.Fatal(e.Start(port))
 }

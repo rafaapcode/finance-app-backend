@@ -2,52 +2,36 @@ package config
 
 import (
 	"fmt"
-
-	"github.com/spf13/viper"
+	"os"
 )
 
 type conf struct {
-	DBHost        string `mapstructure:"DB_HOST"`
-	DBPort        string `mapstructure:"DB_PORT"`
-	DBUser        string `mapstructure:"DB_USER"`
-	DBPassword    string `mapstructure:"DB_PASSWORD"`
-	DBName        string `mapstructure:"DB_NAME"`
-	WebServerPort string `mapstructure:"WEB_SERVER_PORT"`
+	DBHost        string
+	DBPort        string
+	DBUser        string
+	DBPassword    string
+	DBName        string
+	WebServerPort string
 }
 
-func loadConfig() (*conf, error) {
-	var cfg *conf
-	viper.SetConfigName("app_config")
-	viper.SetConfigType("env")
-	viper.AddConfigPath(".")
-	viper.SetConfigFile(".env")
-	viper.AutomaticEnv()
-	err := viper.ReadInConfig()
-	if err != nil {
-		panic(err)
-	}
-	err = viper.Unmarshal(&cfg)
-	if err != nil {
-		panic(err)
-	}
+func loadConfig() conf {
+	var cfg conf
+	cfg.DBHost = os.Getenv("DB_HOST")
+	cfg.DBPort = os.Getenv("DB_PORT")
+	cfg.DBUser = os.Getenv("DB_USER")
+	cfg.DBPassword = os.Getenv("DB_PASSWORD")
+	cfg.DBName = os.Getenv("DB_NAME")
+	cfg.WebServerPort = os.Getenv("WEB_SERVER_PORT")
 
-	return cfg, nil
+	return cfg
 }
 
-func GetDSN() (string, error) {
-	conf, err := loadConfig()
-	if err != nil {
-		panic(err)
-	}
-
-	return fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable TimeZone=America/Sao_Paulo", conf.DBHost, conf.DBUser, conf.DBPassword, conf.DBName, conf.DBPort), nil
+func GetDSN() string {
+	conf := loadConfig()
+	return fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable TimeZone=America/Sao_Paulo", conf.DBHost, conf.DBUser, conf.DBPassword, conf.DBName, conf.DBPort)
 }
 
-func GetPort() (string, error) {
-	conf, err := loadConfig()
-	if err != nil {
-		panic(err)
-	}
-
-	return conf.WebServerPort, nil
+func GetPort() string {
+	conf := loadConfig()
+	return conf.WebServerPort
 }

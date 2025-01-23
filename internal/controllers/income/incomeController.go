@@ -7,22 +7,21 @@ import (
 )
 
 type IncomeController struct {
-	Id     string  `json:"id"`
-	Value  float64 `json:"value"`
-	Userid string  `json:"userid"`
+	Value  float64
+	Userid string
 	Repo   IncomeRepository
 }
 
-func (incController IncomeController) CreateIncome(income model.Income) (model.Income, int, error) {
+func (incController IncomeController) CreateIncome() (model.Income, int, error) {
 
-	incController.Repo.CreateIncome(income)
+	// incController.Repo.CreateIncome(income)
 
 	return model.Income{}, 200, nil
 }
 
 func (incController IncomeController) GetAllIncomeOfMonth(month time.Time) ([]model.Income, int, error) {
 
-	incController.Repo.GetAllIncomeOfMonth(month)
+	incController.Repo.GetAllIncomeOfMonth(month, "")
 
 	return []model.Income{}, 200, nil
 }

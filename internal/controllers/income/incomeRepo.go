@@ -10,7 +10,7 @@ import (
 type IncomeRepository interface {
 	CreateIncome(income model.Income) (model.Income, int, error)
 	GetIncomeById(id string) (model.Income, int, error)
-	GetAllIncomeOfMonth(month time.Time) ([]model.Income, int, error)
+	GetAllIncomeOfMonth(month time.Time, userId string) ([]model.Income, int, error)
 	UpdateIncome(id string, newData model.Income) (model.Income, int, error)
 	DeleteIncome(id string) (string, int, error)
 }
@@ -27,7 +27,7 @@ func (inc IncomeRepo) GetIncomeById(id string) (model.Income, int, error) {
 	return model.Income{}, 200, nil
 }
 
-func (inc IncomeRepo) GetAllIncomeOfMonth(month time.Time) ([]model.Income, int, error) {
+func (inc IncomeRepo) GetAllIncomeOfMonth(month time.Time, userId string) ([]model.Income, int, error) {
 	return []model.Income{}, 200, nil
 }
 
