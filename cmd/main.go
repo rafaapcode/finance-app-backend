@@ -8,6 +8,7 @@ import (
 	"github.com/rafaapcode/finance-app-backend/config"
 	"github.com/rafaapcode/finance-app-backend/internal/controllers/goals"
 	"github.com/rafaapcode/finance-app-backend/internal/controllers/income"
+	"github.com/rafaapcode/finance-app-backend/internal/controllers/investment"
 	"github.com/rafaapcode/finance-app-backend/internal/controllers/outcome"
 	"github.com/rafaapcode/finance-app-backend/internal/controllers/user"
 	"gorm.io/driver/postgres"
@@ -46,6 +47,7 @@ func main() {
 	outcomeRepo := outcome.OutcomeRepo{DB: db}
 	incomeRepo := income.IncomeRepo{DB: db}
 	goalsRepo := goals.GoalsRepo{DB: db}
+	investmentRepo := investment.InvestmentRepo{DB: db}
 
 	// Groups Routes
 	userRoutes := e.Group("/user")
@@ -53,6 +55,7 @@ func main() {
 	outcomeRoutes := e.Group("/outcome")
 	incomeRoutes := e.Group("/income")
 	goalsRoutes := e.Group("/goals")
+	investmentRoutes := e.Group("/investment")
 
 	// User Routes
 	userRoutes.POST("/", func(c echo.Context) error {
@@ -146,6 +149,76 @@ func main() {
 
 		// Create a Goals
 		goalsController.CreateGoal()
+
+		return c.String(200, "")
+	})
+
+	// InvestmentRoutes
+	investmentRoutes.GET("/total", func(c echo.Context) error {
+		investmentController := investment.InvestmenController{Repo: investmentRepo}
+
+		investmentController.GetAllOfInvestment("1", "")
+
+		return c.String(200, "")
+	})
+	investmentRoutes.GET("/:pageNumber", func(c echo.Context) error {
+		pageNum := c.Param("pageNumber")
+		investmentController := investment.InvestmenController{Repo: investmentRepo}
+
+		investmentController.GetAllOfInvestment(pageNum, "")
+
+		return c.String(200, "")
+	})
+	investmentRoutes.GET("/:pageNumber/:name", func(c echo.Context) error {
+		pageNum := c.Param("pageNumber")
+		name := c.Param("name")
+		investmentController := investment.InvestmenController{StockName: name, Repo: investmentRepo}
+
+		investmentController.GetInvestmentByName(pageNum)
+
+		return c.String(200, "")
+	})
+	investmentRoutes.GET("/sort/:typeofSort", func(c echo.Context) error {
+		sort := c.Param("typeofSort")
+		investmentController := investment.InvestmenController{Repo: investmentRepo}
+
+		investmentController.GetAllOfInvestment("", sort)
+
+		return c.String(200, "")
+	})
+	investmentRoutes.GET("/category/:category", func(c echo.Context) error {
+		cat := c.Param("category")
+		investmentController := investment.InvestmenController{Category: cat, Repo: investmentRepo}
+
+		investmentController.GetInvestmentByCategory("")
+
+		return c.String(200, "")
+	})
+	investmentRoutes.GET("/metrics/asset_growth", func(c echo.Context) error {
+		investmentController := investment.InvestmenController{Repo: investmentRepo}
+
+		investmentController.GetAssetGrowth()
+
+		return c.String(200, "")
+	})
+	investmentRoutes.GET("/metrics/portfolio_diversification", func(c echo.Context) error {
+		investmentController := investment.InvestmenController{Repo: investmentRepo}
+
+		investmentController.GetPortfolioDiversification()
+
+		return c.String(200, "")
+	})
+	investmentRoutes.POST("/", func(c echo.Context) error {
+		investmentController := investment.InvestmenController{Repo: investmentRepo}
+
+		investmentController.CreateInvestment()
+
+		return c.String(200, "")
+	})
+	investmentRoutes.POST("/metrics/month_investment", func(c echo.Context) error {
+		investmentController := investment.InvestmenController{Repo: investmentRepo}
+
+		investmentController.GetMonthInvestment()
 
 		return c.String(200, "")
 	})

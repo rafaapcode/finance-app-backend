@@ -33,6 +33,6 @@ func (outcome OutComeController) GetTotalOfOutcomeOfMonth() (string, int, error)
 	return "", 200, nil
 }
 
-func (outcome OutComeController) GetMetricsOfOutcomeByCategory() (model.OutcomeMetrics, int, error) {
-	return model.OutcomeMetrics{}, 200, nil
+func (outcome OutComeController) GetMetricsOfOutcomeByCategory() (model.Metrics, int, error) {
+	return model.Metrics{}, 200, nil
 }

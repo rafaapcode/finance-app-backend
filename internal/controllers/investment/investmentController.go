@@ -15,17 +15,27 @@ type InvestmenController struct {
 	Date       time.Time
 	SupplyDate time.Time
 	SellDate   time.Time
+
+	Repo InvestmentRepository
 }
 
 func (inv InvestmenController) CreateInvestment() (model.Investment, int, error) {
 	return model.Investment{}, 200, nil
 }
 
-func (inv InvestmenController) GetInvestmentByName() (model.Investment, int, error) {
+func (inv InvestmenController) GetTotalOfInvestment() ([]model.Investment, int, error) {
+	return []model.Investment{}, 200, nil
+}
+
+func (inv InvestmenController) GetAllOfInvestment(pageNumber string, sort string) ([]model.Investment, int, error) {
+	return []model.Investment{}, 200, nil
+}
+
+func (inv InvestmenController) GetInvestmentByName(pageNumber string) (model.Investment, int, error) {
 	return model.Investment{}, 200, nil
 }
 
-func (inv InvestmenController) GetInvestmentByCategory() ([]model.Investment, int, error) {
+func (inv InvestmenController) GetInvestmentByCategory(pageNumber string) ([]model.Investment, int, error) {
 	return []model.Investment{}, 200, nil
 }
 
@@ -33,7 +43,18 @@ func (inv InvestmenController) GetInvestmentByType() ([]model.Investment, int, e
 	return []model.Investment{}, 200, nil
 }
 
-// VOU TER QUE CRIAR 3 tabelas para investimentos ( COMPRA, VENDA e ATUAL )
 func (inv InvestmenController) UpdateInvestment(id string) (model.Investment, int, error) {
 	return model.Investment{}, 200, nil
+}
+
+func (inv InvestmenController) GetAssetGrowth() (model.Metrics, int, error) {
+	return model.Metrics{}, 200, nil
+}
+
+func (inv InvestmenController) GetPortfolioDiversification() (model.Metrics, int, error) {
+	return model.Metrics{}, 200, nil
+}
+
+func (inv InvestmenController) GetMonthInvestment() (model.Metrics, int, error) {
+	return model.Metrics{}, 200, nil
 }

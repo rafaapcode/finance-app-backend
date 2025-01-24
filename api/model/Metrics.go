@@ -1,5 +1,5 @@
 package model
 
-type OutcomeMetrics struct {
+type Metrics struct {
 	Metrics map[string]string
 }
