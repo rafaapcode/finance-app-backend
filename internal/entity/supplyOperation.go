@@ -61,10 +61,10 @@ func (inv *SupplyOperation) Validate() error {
 	if inv.Quantity < 0 {
 		return ErrQuantityIsInvalid
 	}
-	if inv.SupplyPrice < 0 {
+	if inv.SupplyPrice < 0.0 {
 		return ErrSupplyPriceIsInvalid
 	}
-	if inv.Value < 0 {
+	if inv.Value < 0.0 {
 		return ErrValueIsInvalid
 	}
 

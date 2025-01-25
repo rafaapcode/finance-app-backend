@@ -41,7 +41,7 @@ func isValidEmail(email string) bool {
 }
 
 func isValidURL(url string) bool {
-	regex := `^(https?|ftp):\/\/[^\s/$.?#].[^\s]*$`
+	regex := `^(http?|https?|ftp):\/\/[^\s/$.?#].[^\s]*$`
 
 	re := regexp.MustCompile(regex)
 
