@@ -23,7 +23,7 @@ func TestCreateSupplyOperation(t *testing.T) {
 	assert.NotNil(t, supplyOp.CreatedAt)
 }
 
-func TestInvestmentIdIsRequired(t *testing.T) {
+func TestSupplyInvestmentIdIsRequired(t *testing.T) {
 	supplyOp, err := NewSupplyOperation("", "Ações", "RBN", 50, 54.67, 2.733, time.Now())
 	assert.Nil(t, err)
 
@@ -31,7 +31,7 @@ func TestInvestmentIdIsRequired(t *testing.T) {
 	assert.Equal(t, ErrInvestmentIdIsRequired, err)
 }
 
-func TestInvestmentIdIsInvalid(t *testing.T) {
+func TestSupplyInvestmentIdIsInvalid(t *testing.T) {
 	supplyOp, err := NewSupplyOperation("01949d63-8f64-7a1e-8b9bf62344689113", "Ações", "RBN", 50, 54.67, 2.733, time.Now())
 	assert.Nil(t, err)
 
@@ -39,7 +39,7 @@ func TestInvestmentIdIsInvalid(t *testing.T) {
 	assert.Equal(t, ErrInvestmentIdIsInvalid, err)
 }
 
-func TestCategoryIsRequired(t *testing.T) {
+func TestSupplyCategoryIsRequired(t *testing.T) {
 	supplyOp, err := NewSupplyOperation("01949d63-8f64-7a1e-8b9b-f62344689113", "", "RBN", 50, 54.67, 2.733, time.Now())
 	assert.Nil(t, err)
 
@@ -47,7 +47,7 @@ func TestCategoryIsRequired(t *testing.T) {
 	assert.Equal(t, ErrCategoryIsRequired, err)
 }
 
-func TestStockCodeIsRequired(t *testing.T) {
+func TestSupplyStockCodeIsRequired(t *testing.T) {
 	supplyOp, err := NewSupplyOperation("01949d63-8f64-7a1e-8b9b-f62344689113", "Ações", "", 50, 54.67, 2.733, time.Now())
 	assert.Nil(t, err)
 
@@ -55,7 +55,7 @@ func TestStockCodeIsRequired(t *testing.T) {
 	assert.Equal(t, ErrStockCodeIsRequired, err)
 }
 
-func TestQuantityIsInvalid(t *testing.T) {
+func TestSupplyQuantityIsInvalid(t *testing.T) {
 	supplyOp, err := NewSupplyOperation("01949d63-8f64-7a1e-8b9b-f62344689113", "Ações", "RBN", -10, 54.67, 2.733, time.Now())
 	assert.Nil(t, err)
 
@@ -63,7 +63,7 @@ func TestQuantityIsInvalid(t *testing.T) {
 	assert.Equal(t, ErrQuantityIsInvalid, err)
 }
 
-func TestSupplyPriceIsInvalid(t *testing.T) {
+func TestSupplySupplyPriceIsInvalid(t *testing.T) {
 	supplyOp, err := NewSupplyOperation("01949d63-8f64-7a1e-8b9b-f62344689113", "Ações", "RBN", 10, -54.67, 2.733, time.Now())
 	assert.Nil(t, err)
 
@@ -71,7 +71,7 @@ func TestSupplyPriceIsInvalid(t *testing.T) {
 	assert.Equal(t, ErrSupplyPriceIsInvalid, err)
 }
 
-func TestValueIsInvalid(t *testing.T) {
+func TestSupplyValueIsInvalid(t *testing.T) {
 	supplyOp, err := NewSupplyOperation("01949d63-8f64-7a1e-8b9b-f62344689113", "Ações", "RBN", 10, 54.67, -2.733, time.Now())
 	assert.Nil(t, err)
 

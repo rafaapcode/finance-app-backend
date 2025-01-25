@@ -18,4 +18,5 @@ var (
 	ErrQuantityIsInvalid      = errors.New("quantity is invalid")
 	ErrSupplyPriceIsInvalid   = errors.New("supplyPrice is invalid")
 	ErrValueIsInvalid         = errors.New("value is invalid")
+	ErrSellPriceIsInvalid     = errors.New("sellPrice is invalid")
 )

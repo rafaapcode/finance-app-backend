@@ -38,3 +38,35 @@ func NewSellOperation(invesmentId, category, stockCode string, quantity int, val
 		CreatedAt:     time.Now(),
 	}, nil
 }
+
+func (sell *SellOperation) Validate() error {
+	if sell.Id.String() == "" {
+		return ErrIdIdRequired
+	}
+	if _, err := pkg.ParseID(sell.Id.String()); err != nil {
+		return ErrIdInvalidId
+	}
+	if sell.InvestimentId == "" {
+		return ErrInvestmentIdIsRequired
+	}
+	if _, err := pkg.ParseID(sell.InvestimentId); err != nil {
+		return ErrInvestmentIdIsInvalid
+	}
+	if sell.Category == "" {
+		return ErrCategoryIsRequired
+	}
+	if sell.StockCode == "" {
+		return ErrStockCodeIsRequired
+	}
+	if sell.Quantity < 0 {
+		return ErrQuantityIsInvalid
+	}
+	if sell.SellPrice < 0.0 {
+		return ErrSellPriceIsInvalid
+	}
+	if sell.Value < 0.0 {
+		return ErrValueIsInvalid
+	}
+
+	return nil
+}
