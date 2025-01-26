@@ -24,4 +24,6 @@ var (
 	ErrTypeIsRequired          = errors.New("type is required")
 	ErrPaymentMethodIsRequired = errors.New("paymentMethod is required")
 	ErrPaymentMethodIsInvalid  = errors.New("paymentMethod is invalid")
+	ErrBuyPriceIsInvalid       = errors.New("buyPrice is invalid")
+	ErrPercentageIsInvalid     = errors.New("percentage is invalid")
 )

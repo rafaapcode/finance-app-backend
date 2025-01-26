@@ -46,6 +46,43 @@ func NewInvestment(category, userId, stockCode string, totalQuantity int, buyPri
 		Profit:        profit,
 		Percentage:    percentage,
 		BuyDate:       buyDate,
+		CreatedAt:     time.Now(),
 	}, nil
+}
 
+func (inv *Investment) Validate() error {
+	if inv.Id.String() == "" {
+		return ErrIdIdRequired
+	}
+	if _, err := pkg.ParseID(inv.Id.String()); err != nil {
+		return ErrIdInvalidId
+	}
+	if inv.Userid == "" {
+		return ErrUserIdIsRequired
+	}
+	if _, err := pkg.ParseID(inv.Userid); err != nil {
+		return ErrUserIdIsInvalid
+	}
+	if inv.Category == "" {
+		return ErrCategoryIsRequired
+	}
+	if inv.StockCode == "" {
+		return ErrStockCodeIsRequired
+	}
+	if inv.TotalQuantity < 0 {
+		return ErrQuantityIsInvalid
+	}
+	if inv.BuyPrice <= 0.0 {
+		return ErrBuyPriceIsInvalid
+	}
+	if inv.SellPrice < 0.0 {
+		return ErrSellPriceIsInvalid
+	}
+	if inv.Value < 0.0 {
+		return ErrValueIsInvalid
+	}
+	if inv.Percentage < 0.0 || inv.Percentage > 1.0 {
+		return ErrPercentageIsInvalid
+	}
+	return nil
 }
