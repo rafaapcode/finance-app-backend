@@ -37,3 +37,66 @@ func TestCreateOutcomeWithoutExpireDate(t *testing.T) {
 	assert.False(t, outcome.Notification)
 	assert.Equal(t, defaultDate, outcome.ExpireDate)
 }
+
+func TestOutcomeUserIdIsRequired(t *testing.T) {
+	outcome, err := NewOutcome("Fixo", "Home", "Pix", "", 5.00, false, time.Now())
+	assert.Nil(t, err)
+
+	err = outcome.Validate()
+
+	assert.Equal(t, ErrUserIdIsRequired, err)
+}
+
+func TestOutcomeUserIdIsInvalid(t *testing.T) {
+	outcome, err := NewOutcome("Fixo", "Home", "Pix", "01949d63-8f64-7a1e8b9b-f62344689113", 5.00, false, time.Now())
+	assert.Nil(t, err)
+
+	err = outcome.Validate()
+
+	assert.Equal(t, ErrUserIdIsInvalid, err)
+}
+
+func TestOutcomeTypeRequired(t *testing.T) {
+	outcome, err := NewOutcome("", "Home", "Pix", "01949d63-8f64-7a1e-8b9b-f62344689113", 5.00, false, time.Now())
+	assert.Nil(t, err)
+
+	err = outcome.Validate()
+
+	assert.Equal(t, ErrTypeIsRequired, err)
+}
+
+func TestOutcomeCategoryRequired(t *testing.T) {
+	outcome, err := NewOutcome("Fixo", "", "Pix", "01949d63-8f64-7a1e-8b9b-f62344689113", 5.00, false, time.Now())
+	assert.Nil(t, err)
+
+	err = outcome.Validate()
+
+	assert.Equal(t, ErrCategoryIsRequired, err)
+}
+
+func TestOutcomePaymentMethodRequired(t *testing.T) {
+	outcome, err := NewOutcome("Fixo", "Home", "", "01949d63-8f64-7a1e-8b9b-f62344689113", 5.00, false, time.Now())
+	assert.Nil(t, err)
+
+	err = outcome.Validate()
+
+	assert.Equal(t, ErrPaymentMethodIsRequired, err)
+}
+
+func TestOutcomePaymentMethodInvalid(t *testing.T) {
+	outcome, err := NewOutcome("Fixo", "Home", "Pi", "01949d63-8f64-7a1e-8b9b-f62344689113", 5.00, false, time.Now())
+	assert.Nil(t, err)
+
+	err = outcome.Validate()
+
+	assert.Equal(t, ErrPaymentMethodIsInvalid, err)
+}
+
+func TestOutcomeValueInvalid(t *testing.T) {
+	outcome, err := NewOutcome("Fixo", "Home", "Pix", "01949d63-8f64-7a1e-8b9b-f62344689113", -5.00, false, time.Now())
+	assert.Nil(t, err)
+
+	err = outcome.Validate()
+
+	assert.Equal(t, ErrValueIsInvalid, err)
+}

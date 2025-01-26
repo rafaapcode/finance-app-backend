@@ -51,3 +51,34 @@ func NewOutcome(outcomeType, category, paymentMethod, userId string, value float
 		CreatedAt:     time.Now(),
 	}, nil
 }
+
+func (out *Outcome) Validate() error {
+	if out.Id.String() == "" {
+		return ErrIdIdRequired
+	}
+	if _, err := pkg.ParseID(out.Id.String()); err != nil {
+		return ErrIdInvalidId
+	}
+	if out.Userid == "" {
+		return ErrUserIdIsRequired
+	}
+	if _, err := pkg.ParseID(out.Userid); err != nil {
+		return ErrUserIdIsInvalid
+	}
+	if out.Type == "" {
+		return ErrTypeIsRequired
+	}
+	if out.Category == "" {
+		return ErrCategoryIsRequired
+	}
+	if out.PaymentMethod == "" {
+		return ErrPaymentMethodIsRequired
+	}
+	if len(out.PaymentMethod) < 3 {
+		return ErrPaymentMethodIsInvalid
+	}
+	if out.Value < 0 {
+		return ErrValueIsInvalid
+	}
+	return nil
+}
