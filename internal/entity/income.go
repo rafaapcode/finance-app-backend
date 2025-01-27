@@ -28,3 +28,22 @@ func NewIncome(userId string, value float64) (*Income, error) {
 		CreatedAt: time.Now(),
 	}, nil
 }
+
+func (inc *Income) Validate() error {
+	if inc.Id.String() == "" {
+		return ErrIdIdRequired
+	}
+	if _, err := pkg.ParseID(inc.Id.String()); err != nil {
+		return ErrIdInvalidId
+	}
+	if inc.Userid == "" {
+		return ErrUserIdIsRequired
+	}
+	if _, err := pkg.ParseID(inc.Userid); err != nil {
+		return ErrUserIdIsInvalid
+	}
+	if inc.Value < 0.0 {
+		return ErrValueIsInvalid
+	}
+	return nil
+}

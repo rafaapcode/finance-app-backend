@@ -30,3 +30,25 @@ func NewGoals(userId, category string, percentage float64) (*Goals, error) {
 		CreatedAt:  time.Now(),
 	}, nil
 }
+
+func (goal *Goals) Validate() error {
+	if goal.Id.String() == "" {
+		return ErrIdIdRequired
+	}
+	if _, err := pkg.ParseID(goal.Id.String()); err != nil {
+		return ErrIdInvalidId
+	}
+	if goal.Userid == "" {
+		return ErrUserIdIsRequired
+	}
+	if _, err := pkg.ParseID(goal.Userid); err != nil {
+		return ErrUserIdIsInvalid
+	}
+	if goal.Category == "" {
+		return ErrCategoryIsRequired
+	}
+	if goal.Percentage < 0.0 {
+		return ErrPercentageIsInvalid
+	}
+	return nil
+}
