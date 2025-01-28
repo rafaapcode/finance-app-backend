@@ -38,3 +38,34 @@ func NewBuyOperation(investmentId, category, stockCode string, quantity int, buy
 		CreatedAt:     time.Now(),
 	}, nil
 }
+
+func (buyOp *BuyOperation) Validate() error {
+	if buyOp.Id.String() == "" {
+		return ErrIdIdRequired
+	}
+	if _, err := pkg.ParseID(buyOp.Id.String()); err != nil {
+		return ErrIdInvalidId
+	}
+	if buyOp.InvestimentId == "" {
+		return ErrInvestmentIdIsRequired
+	}
+	if _, err := pkg.ParseID(buyOp.InvestimentId); err != nil {
+		return ErrInvestmentIdIsInvalid
+	}
+	if buyOp.Category == "" {
+		return ErrCategoryIsRequired
+	}
+	if buyOp.StockCode == "" {
+		return ErrStockCodeIsRequired
+	}
+	if buyOp.Quantity < 0 {
+		return ErrQuantityIsInvalid
+	}
+	if buyOp.BuyPrice < 0.0 {
+		return ErrBuyPriceIsInvalid
+	}
+	if buyOp.Value < 0.0 || buyOp.Value != (buyOp.BuyPrice*float64(buyOp.Quantity)) {
+		return ErrValueIsInvalid
+	}
+	return nil
+}

@@ -30,3 +30,25 @@ func NewExtraIncome(userId, category string, value float64) (*ExtraIncome, error
 		Date:     time.Now(),
 	}, nil
 }
+
+func (extInc *ExtraIncome) Validate() error {
+	if extInc.Id.String() == "" {
+		return ErrIdIdRequired
+	}
+	if _, err := pkg.ParseID(extInc.Id.String()); err != nil {
+		return ErrIdInvalidId
+	}
+	if extInc.Userid == "" {
+		return ErrUserIdIsRequired
+	}
+	if _, err := pkg.ParseID(extInc.Userid); err != nil {
+		return ErrUserIdIsInvalid
+	}
+	if extInc.Category == "" {
+		return ErrCategoryIsRequired
+	}
+	if extInc.Value < 0.0 {
+		return ErrValueIsInvalid
+	}
+	return nil
+}
