@@ -28,6 +28,18 @@ type OutcomeInterface interface {
 	DeleteOutcome(id string, userId string) (string, int, error)
 }
 
+type InvestmentInterface interface {
+	CreateInvestment(invest *entity.Investment) (int, error)
+	GetTotalOfInvestment(userid string) (int, int, error)
+	GetAllOfInvestment(pageNumber int, sort, userid string) ([]entity.Investment, int, error)
+	GetInvestmentByName(name, userid string) (entity.Investment, int, error)
+	GetInvestmentByCategory(pageNumber int, category, userid string) ([]entity.Investment, int, error)
+	UpdateInvestment(newData *entity.Investment) (int, error)
+	GetAssetGrowth(userid string) (entity.Metrics, int, error)
+	GetPortfolioDiversification(userid string) (entity.Metrics, int, error)
+	GetMonthInvestment(userid string, month time.Month) (entity.Metrics, int, error)
+}
+
 // type ProductInterface interface {
 // 	Create(product *entity.Product) error
 // 	FindAll(page, limit int, sort string) ([]*entity.Product, error)
