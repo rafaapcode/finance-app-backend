@@ -1,6 +1,7 @@
 package database
 
 import (
+	"fmt"
 	"log"
 	"time"
 
@@ -20,6 +21,28 @@ func NewInvestmentDB(db *gorm.DB) *InvestmentDb {
 
 func (invDb *InvestmentDb) CreateInvestment(invest *entity.Investment) (int, error) {
 	err := invDb.DB.Create(invest).Error
+	if err != nil {
+		log.Fatal(err.Error())
+		return 500, err
+	}
+
+	totalValueInvestment := float64(invest.TotalQuantity) * invest.BuyPrice
+
+	buyOp, err := entity.NewBuyOperation(invest.Id.String(), invest.Category, invest.StockCode, invest.TotalQuantity, invest.BuyPrice, totalValueInvestment, invest.BuyDate)
+
+	if err != nil {
+		log.Fatal(err.Error())
+		return 500, err
+	}
+
+	err = buyOp.Validate()
+
+	if err != nil {
+		log.Fatal(err.Error())
+		return 500, err
+	}
+
+	err = invDb.DB.Create(buyOp).Error
 
 	if err != nil {
 		log.Fatal(err.Error())
@@ -100,18 +123,64 @@ func (invDb *InvestmentDb) GetInvestmentByCategory(pageNumber int, category, use
 	return investments, 200, nil
 }
 
-func (invDb *InvestmentDb) UpdateInvestment(newData *entity.Investment) (int, error) {
-	_, status, err := invDb.GetInvestmentByName(newData.StockCode, newData.Userid)
+func (invDb *InvestmentDb) UpdateInvestment(newData *entity.Investment, typeInv string) (int, error) {
+	inv, status, err := invDb.GetInvestmentByName(newData.StockCode, newData.Userid)
 
 	if status != 200 {
 		return 404, err
 	}
 
-	err = invDb.DB.Save(newData).Error
+	if typeInv == "sell" {
+		totalValueToInvest := float64(newData.TotalQuantity) * newData.SellPrice
+		if inv.TotalQuantity < newData.TotalQuantity {
+			return 400, fmt.Errorf("você não pode vender mais do que possui")
+		}
+		sellop, err := entity.NewSellOperation(inv.Id.String(), inv.Category, inv.StockCode, newData.TotalQuantity, totalValueToInvest, newData.SellPrice, newData.SellDate)
+		if err != nil {
+			log.Fatal(err.Error())
+			return 500, err
+		}
+		err = invDb.DB.Create(sellop).Error
+		if err != nil {
+			log.Fatal(err.Error())
+			return 500, err
+		}
+		inv.TotalQuantity = inv.TotalQuantity - newData.TotalQuantity
+		inv.Value = inv.Value - totalValueToInvest
+		inv.SellDate = newData.SellDate
+		inv.SellPrice = newData.SellPrice
 
-	if err != nil {
-		log.Fatal(err.Error())
-		return 500, err
+		err = invDb.DB.Save(newData).Error
+
+		if err != nil {
+			log.Fatal(err.Error())
+			return 500, err
+		}
+	}
+
+	if typeInv == "supply" {
+		totalValueToInvest := float64(newData.TotalQuantity) * newData.BuyPrice
+		seplop, err := entity.NewSupplyOperation(inv.Id.String(), inv.Category, inv.StockCode, newData.TotalQuantity, totalValueToInvest, newData.BuyPrice, newData.BuyDate)
+		if err != nil {
+			log.Fatal(err.Error())
+			return 500, err
+		}
+		err = invDb.DB.Create(seplop).Error
+		if err != nil {
+			log.Fatal(err.Error())
+			return 500, err
+		}
+		inv.TotalQuantity = inv.TotalQuantity + newData.TotalQuantity
+		inv.Value = inv.Value + totalValueToInvest
+		inv.LastSupplyDate = newData.BuyDate
+		inv.BuyPrice = newData.BuyPrice
+
+		err = invDb.DB.Save(newData).Error
+
+		if err != nil {
+			log.Fatal(err.Error())
+			return 500, err
+		}
 	}
 
 	return 200, nil
