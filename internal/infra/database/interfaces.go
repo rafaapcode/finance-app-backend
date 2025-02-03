@@ -16,7 +16,7 @@ type UserInterface interface {
 type OutcomeInterface interface {
 	CreateOutcome(outcome *entity.Outcome) (int, error)
 	GetOutcomeById(id string) (*entity.Outcome, int, error)
-	GetAllOutcomeOfMonth(month time.Time, userId string) ([]entity.Outcome, int, error)
+	GetAllOutcomeOfMonth(month int, userId string) ([]entity.Outcome, int, error)
 	GetAllFixedOutcome(userId string) ([]entity.Outcome, int, error)
 	GetAllOutcomeByCategory(category string, userId string) ([]entity.Outcome, int, error)
 	GetAllOutcomeByPaymentMethod(method string, userId string) ([]entity.Outcome, int, error)
@@ -24,7 +24,6 @@ type OutcomeInterface interface {
 	GetOutcomeAboutToExpire(daysToExpire int, userId string) ([]entity.Outcome, int, error)
 	GetOutcomeLessThan(value float64, userId string) ([]entity.Outcome, int, error)
 	GetOutcomeMoreThan(value float64, userId string) ([]entity.Outcome, int, error)
-	UpdateOutcome(newData *entity.Outcome) (int, error)
 	DeleteOutcome(id string, userId string) (string, int, error)
 }
 
@@ -38,6 +37,14 @@ type InvestmentInterface interface {
 	GetAssetGrowth(userid string) (entity.Metrics, int, error)
 	GetPortfolioDiversification(userid string) (entity.Metrics, int, error)
 	GetMonthInvestment(userid string, month time.Month) (entity.Metrics, int, error)
+}
+
+type IncomeInterface interface {
+	CreateIncome(income entity.Income) (int, error)
+	GetIncomeById(id string) (entity.Income, int, error)
+	GetAllIncomeOfMonth(month time.Time, userId string) ([]entity.Income, int, error) // AllExtraIncomeOfMonth + Income
+	UpdateIncome(newData entity.Income) (int, error)
+	DeleteIncome(id string) (int, error)
 }
 
 // type ProductInterface interface {

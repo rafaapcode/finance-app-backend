@@ -3,7 +3,6 @@ package database
 import (
 	"fmt"
 	"log"
-	"time"
 
 	"github.com/rafaapcode/finance-app-backend/internal/entity"
 	"gorm.io/gorm"
@@ -39,12 +38,12 @@ func (outDb *OutcomeDb) GetOutcomeById(id string) (*entity.Outcome, int, error) 
 	return &outcome, 200, nil
 }
 
-func (outDb *OutcomeDb) GetAllOutcomeOfMonth(month time.Time, userId string) ([]entity.Outcome, int, error) {
+func (outDb *OutcomeDb) GetAllOutcomeOfMonth(month int, userId string) ([]entity.Outcome, int, error) {
 	var outcomes []entity.Outcome
-	monthDate := int(month.Month())
-	yearDate := int(month.Year())
+	// monthDate := int(month.Month())
+	// yearDate := int(month.Year())
 
-	err := outDb.DB.Where("DATE_TRUNC('month', createdAt) = DATE_TRUNC('month', TO_DATE(? || '-01', 'YYYY-MM-DD'))", fmt.Sprintf("%04d-%02d", yearDate, monthDate)).Preload("User", "id = ?", userId).Find(&outcomes).Error
+	err := outDb.DB.Where("DATE_TRUNC('month', createdAt) = DATE_TRUNC('month', TO_DATE(? || '-01', 'YYYY-MM-DD'))", month).Preload("User", "id = ?", userId).Find(&outcomes).Error
 
 	if err != nil {
 		log.Fatal(err.Error())
@@ -137,23 +136,6 @@ func (outDb *OutcomeDb) GetOutcomeMoreThan(value float64, userId string) ([]enti
 	}
 
 	return outcomes, 200, nil
-}
-
-func (outDb *OutcomeDb) UpdateOutcome(newData *entity.Outcome) (int, error) {
-	_, status, err := outDb.GetOutcomeById(newData.Id.String())
-	if status != 200 {
-		log.Fatal(err.Error())
-		return 404, err
-	}
-
-	err = outDb.DB.Save(newData).Error
-
-	if err != nil {
-		log.Fatal(err.Error())
-		return 500, err
-	}
-
-	return 200, nil
 }
 
 func (outDb *OutcomeDb) DeleteOutcome(id string) (string, int, error) {
