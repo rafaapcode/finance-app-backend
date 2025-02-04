@@ -40,17 +40,46 @@ type InvestmentInterface interface {
 }
 
 type IncomeInterface interface {
-	CreateIncome(income entity.Income) (int, error)
-	GetIncomeById(id string) (entity.Income, int, error)
+	CreateIncome(income *entity.Income) (int, error)
+	GetIncomeById(id string) (*entity.Income, int, error)
 	GetAllIncomeOfMonth(month time.Time, userId string) ([]entity.Income, int, error) // AllExtraIncomeOfMonth + Income
-	UpdateIncome(newData entity.Income) (int, error)
+	UpdateIncome(newData *entity.Income) (int, error)
 	DeleteIncome(id string) (int, error)
 }
 
-// type ProductInterface interface {
-// 	Create(product *entity.Product) error
-// 	FindAll(page, limit int, sort string) ([]*entity.Product, error)
-// 	FindById(id string) (*entity.Product, error)
-// 	Update(prduct *entity.Product) error
-// 	Delete(id string) error
-// }
+type GoalsInterface interface {
+	CreateGoal(goals entity.Goals) (int, error)
+	UpdateGoal(newGoal entity.Goals) (int, error)
+	DeleteGoal(goalId string) (string, int, error)
+	ListAllGoals(userId string) ([]entity.Goals, int, error)
+}
+
+type SellOperationInterface interface {
+	CreateSellOperation(sellOp entity.SellOperation) (int, error)
+	GetSellOperationByName(investmentId string, stockName string) (entity.SellOperation, int, error)
+	GetSellOperationsLessThan(investmentId string, value float64) ([]entity.SellOperation, int, error)
+	GetSellOperationsHigherThan(investmentId string, value float64) ([]entity.SellOperation, int, error)
+	GetSellOperationsByCategory(investmentId string, category float64) ([]entity.SellOperation, int, error)
+	ListAllSellOperation(investmentId string) ([]entity.SellOperation, int, error)
+	ListAllSellOperationOfMonth(investmentId string, month time.Time) ([]entity.SellOperation, int, error)
+}
+
+type BuyOperationInterface interface {
+	CreateBuyOperation(buyOp entity.BuyOperation) (int, error)
+	GetBuyOperationByName(investmentId string, stockName string) (entity.BuyOperation, int, error)
+	GetBuyOperationsLessThan(investmentId string, value float64) ([]entity.BuyOperation, int, error)
+	GetBuyOperationsHigherThan(investmentId string, value float64) ([]entity.BuyOperation, int, error)
+	GetBuyOperationsByCategory(investmentId string, category float64) ([]entity.BuyOperation, int, error)
+	ListAllBuyOperation(investmentId string) ([]entity.BuyOperation, int, error)
+	ListAllBuyOperationOfMonth(investmentId string, month time.Time) ([]entity.BuyOperation, int, error)
+}
+
+type SupplyOperationInterface interface {
+	CreateSupplyOperation(supplyOp entity.SupplyOperation) (int, error)
+	GetSupplyOperationByName(investmentId string, stockName string) ([]entity.SupplyOperation, int, error)
+	GetSupplyOperationsLessThan(investmentId string, value float64) ([]entity.SupplyOperation, int, error)
+	GetSupplyOperationsHigherThan(investmentId string, value float64) ([]entity.SupplyOperation, int, error)
+	GetSupplyOperationsByCategory(investmentId string, category float64) ([]entity.SupplyOperation, int, error)
+	ListAllSupplyOperation(investmentId string) ([]entity.SupplyOperation, int, error)
+	ListAllSupplyOperationOfMonth(investmentId string, month time.Time) ([]entity.SupplyOperation, int, error)
+}
