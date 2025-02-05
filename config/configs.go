@@ -28,7 +28,7 @@ func loadConfig() conf {
 
 func GetDSN() string {
 	conf := loadConfig()
-	return fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable TimeZone=America/Sao_Paulo", conf.DBHost, conf.DBUser, conf.DBPassword, conf.DBName, conf.DBPort)
+	return fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable", conf.DBHost, conf.DBUser, conf.DBPassword, conf.DBName, conf.DBPort)
 }
 
 func GetPort() string {

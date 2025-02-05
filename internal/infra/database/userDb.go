@@ -1,34 +1,52 @@
 package database
 
 import (
+	"database/sql"
 	"log"
 
 	"github.com/rafaapcode/finance-app-backend/internal/entity"
-	"gorm.io/gorm"
 )
 
 type UserDb struct {
-	DB *gorm.DB
+	DB *sql.DB
 }
 
-func NewUserDb(db *gorm.DB) *UserDb {
+func NewUserDb(db *sql.DB) *UserDb {
 	return &UserDb{
 		DB: db,
 	}
 }
 
 func (userDb *UserDb) CreateUser(user *entity.User) (int, error) {
-	err := userDb.DB.Create(user).Error
+	stmt, err := userDb.DB.Prepare("INSERT INTO users VALUES ($1, $2, $3, $3)")
+
 	if err != nil {
 		log.Fatal(err.Error())
 		return 500, err
 	}
+	defer stmt.Close()
+
+	_, err = stmt.Exec(user.Id.String(), user.Nome, user.Email, user.PhotoUrl)
+
+	if err != nil {
+		log.Fatal(err.Error())
+		return 500, err
+	}
+
 	return 201, nil
 }
 
 func (userDb *UserDb) GetUser(id string) (*entity.User, int, error) {
 	var user entity.User
-	err := userDb.DB.First(&user, "id = ?", id).Error
+	stmt, err := userDb.DB.Prepare("SELECT id, nome, email, photourl FROM users WHERE id = $1")
+
+	if err != nil {
+		log.Fatal(err.Error())
+		return nil, 500, err
+	}
+	defer stmt.Close()
+
+	err = stmt.QueryRow(id).Scan(&user.Id, &user.Nome, &user.Email, &user.PhotoUrl)
 
 	if err != nil {
 		log.Fatal(err.Error())
@@ -39,8 +57,18 @@ func (userDb *UserDb) GetUser(id string) (*entity.User, int, error) {
 }
 
 func (userDb *UserDb) DeleteUser(id string) (string, int, error) {
-	_, status, err := userDb.GetUser(id)
-	if status != 200 {
+	stmt, err := userDb.DB.Prepare("DELETE FROM users where id = $1")
+
+	if err != nil {
+		log.Fatal(err.Error())
+		return "", 500, err
+	}
+	defer stmt.Close()
+
+	_, err = stmt.Exec(id)
+
+	if err != nil {
+		log.Fatal(err.Error())
 		return "", 404, err
 	}
 
@@ -48,13 +76,17 @@ func (userDb *UserDb) DeleteUser(id string) (string, int, error) {
 }
 
 func (userDb *UserDb) UpdateUser(newUserData *entity.User) (int, error) {
-	_, status, err := userDb.GetUser(newUserData.Id.String())
+	stmt, err := userDb.DB.Prepare("UPDATE users SET photourl = $1 WHERE id = $2")
+	if err != nil {
+		return 500, err
+	}
+	defer stmt.Close()
 
-	if status != 200 {
+	_, err = stmt.Exec(newUserData.PhotoUrl, newUserData.Id)
+
+	if err != nil {
 		return 404, err
 	}
-
-	err = userDb.DB.Save(newUserData).Error
 
 	return 200, err
 }

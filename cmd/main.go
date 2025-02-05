@@ -1,14 +1,15 @@
 package main
 
 import (
+	"database/sql"
+
 	"github.com/joho/godotenv"
 	"github.com/labstack/echo/v4"
+	_ "github.com/lib/pq"
 	"github.com/rafaapcode/finance-app-backend/config"
-	"gorm.io/driver/postgres"
-	"gorm.io/gorm"
 )
 
-var db *gorm.DB
+var db *sql.DB
 
 func init() {
 	err := godotenv.Load()
@@ -17,10 +18,17 @@ func init() {
 		panic("Error to load the environment variables")
 	}
 	dsn := config.GetDSN()
-	database, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
+	database, err := sql.Open("postgres", dsn)
+
 	if err != nil {
 		panic("Error to connect with database")
 	}
+
+	// err = db.Ping()
+
+	// if err != nil {
+	// 	panic("Error to connect with database")
+	// }
 
 	db = database
 }
