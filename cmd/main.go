@@ -35,7 +35,7 @@ func init() {
 
 func main() {
 	e := echo.New()
-
+	defer db.Close()
 	// Health Endpoint
 	e.GET("/health", func(c echo.Context) error {
 		return c.String(200, "Your API is HEALTHY!")
