@@ -163,3 +163,19 @@ func TestGetOutcomeHigherThanInvalid(t *testing.T) {
 	assert.Equal(t, 404, status)
 	assert.Equal(t, 0, len(outcomes))
 }
+
+func TestDeleteOutcome(t *testing.T) {
+	outcomedb := NewOutcomeDb(db)
+	outcomeId := testsCtx.Value(idOutcome).(string)
+
+	res, status, err := outcomedb.DeleteOutcome(outcomeId)
+
+	assert.NoError(t, err)
+	assert.Equal(t, 200, status)
+	assert.Equal(t, "Saída deletada com sucesso", res)
+
+	_, status, err = outcomedb.GetOutcomeById(outcomeId)
+
+	assert.Error(t, err)
+	assert.Equal(t, 404, status)
+}

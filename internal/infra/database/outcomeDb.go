@@ -357,6 +357,19 @@ func (outDb *OutcomeDb) GetOutcomeHigherThan(value float64, userId string) ([]en
 }
 
 func (outDb *OutcomeDb) DeleteOutcome(id string) (string, int, error) {
+	stmt, err := outDb.DB.Prepare("DELETE FROM outcome WHERE id = $1")
 
-	return "Saída deletada com sucesso", 500, nil
+	if err != nil {
+		fmt.Println(err.Error())
+		return "Erro ao deletar a saída", 500, err
+	}
+	defer stmt.Close()
+
+	_, err = stmt.Exec(id)
+	if err != nil {
+		fmt.Println(err.Error())
+		return "Saída não encontrada", 404, err
+	}
+
+	return "Saída deletada com sucesso", 200, nil
 }
