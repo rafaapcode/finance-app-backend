@@ -53,6 +53,37 @@ func TestGetUserById(t *testing.T) {
 	assert.Equal(t, "http://localhost.com", user.PhotoUrl)
 }
 
+func TestGetUserByEmail(t *testing.T) {
+	userDb := NewUserDb(db)
+	idOfUser := testsCtx.Value(idUser).(string)
+	user, status, err := userDb.GetUser(idOfUser)
+	assert.NoError(t, err)
+	assert.Equal(t, 200, status)
+
+	user, status, err = userDb.GetUserByEmail(user.Email)
+
+	assert.NoError(t, err)
+	assert.Equal(t, 200, status)
+	assert.NotEmpty(t, user)
+	assert.Equal(t, "Rafael", user.Nome)
+	assert.Equal(t, "rafa@gmail.com", user.Email)
+	assert.Equal(t, "http://localhost.com", user.PhotoUrl)
+}
+
+func TestGetUserByInvalidEmail(t *testing.T) {
+	userDb := NewUserDb(db)
+	idOfUser := testsCtx.Value(idUser).(string)
+	user, status, err := userDb.GetUser(idOfUser)
+	assert.NoError(t, err)
+	assert.Equal(t, 200, status)
+
+	user, status, err = userDb.GetUserByEmail("rafa@@gmail.com")
+
+	assert.Error(t, err)
+	assert.Equal(t, 404, status)
+	assert.Nil(t, user)
+}
+
 func TestGetUserByInvalidId(t *testing.T) {
 	userDb := NewUserDb(db)
 	user, status, err := userDb.GetUser("0194db6f-2570-716e-b9f0-1af62eddf56")

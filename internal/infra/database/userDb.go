@@ -56,6 +56,23 @@ func (userDb *UserDb) GetUser(id string) (*entity.User, int, error) {
 	return &user, 200, nil
 }
 
+func (UserDb *UserDb) GetUserByEmail(email string) (*entity.User, int, error) {
+	var user entity.User
+	stmt, err := UserDb.DB.Prepare("SELECT id, nome, email, photourl FROM users WHERE email = $1")
+
+	if err != nil {
+		return nil, 500, err
+	}
+	defer stmt.Close()
+	err = stmt.QueryRow(email).Scan(&user.Id, &user.Nome, &user.Email, &user.PhotoUrl)
+
+	if err != nil {
+		return nil, 404, err
+	}
+
+	return &user, 200, nil
+}
+
 func (userDb *UserDb) DeleteUser(id string) (string, int, error) {
 	stmt, err := userDb.DB.Prepare("DELETE FROM users where id = $1")
 

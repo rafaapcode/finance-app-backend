@@ -9,6 +9,7 @@ import (
 type UserInterface interface {
 	CreateUser(user *entity.User) (int, error)
 	GetUser(id string) (*entity.User, int, error)
+	GetUserByEmail(email string) (*entity.User, int, error)
 	DeleteUser(id string) (string, int, error)
 	UpdateUser(newUserData *entity.User) (int, error)
 }

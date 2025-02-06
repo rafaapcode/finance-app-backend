@@ -44,7 +44,7 @@ func Initialize() (*sql.DB, error) {
 			value NUMERIC(20,2),
 			paymentMethod VARCHAR(100),
 			notification BOOLEAN,
-			expireDate DATE,
+			expireDate INT,
 			createdAt DATE
 		);
 

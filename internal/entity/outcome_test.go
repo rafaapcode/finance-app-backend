@@ -2,16 +2,13 @@ package entity
 
 import (
 	"testing"
-	"time"
 
 	"github.com/stretchr/testify/assert"
 )
 
 func TestCreateOutcomeWithExpireDate(t *testing.T) {
-	outcome, err := NewOutcome("Fixo", "Home", "Pix", "01949d63-8f64-7a1e-8b9b-f62344689113", 5.00, true, time.Now())
+	outcome, err := NewOutcome("Fixo", "Home", "Pix", "01949d63-8f64-7a1e-8b9b-f62344689113", 5.00, true, 1)
 	assert.Nil(t, err)
-
-	var defaultDate time.Time
 
 	assert.Equal(t, "Fixo", outcome.Type)
 	assert.Equal(t, "Home", outcome.Category)
@@ -19,15 +16,12 @@ func TestCreateOutcomeWithExpireDate(t *testing.T) {
 	assert.Equal(t, "01949d63-8f64-7a1e-8b9b-f62344689113", outcome.Userid)
 	assert.Equal(t, 5.00, outcome.Value)
 	assert.True(t, outcome.Notification)
-	assert.NotEqual(t, defaultDate, outcome.ExpireDate)
 }
 
 func TestCreateOutcomeWithoutExpireDate(t *testing.T) {
 
-	outcome, err := NewOutcome("Fixo", "Home", "Pix", "01949d63-8f64-7a1e-8b9b-f62344689113", 5.00, false, time.Now())
+	outcome, err := NewOutcome("Fixo", "Home", "Pix", "01949d63-8f64-7a1e-8b9b-f62344689113", 5.00, false, 0)
 	assert.Nil(t, err)
-
-	var defaultDate time.Time
 
 	assert.Equal(t, "Fixo", outcome.Type)
 	assert.Equal(t, "Home", outcome.Category)
@@ -35,11 +29,11 @@ func TestCreateOutcomeWithoutExpireDate(t *testing.T) {
 	assert.Equal(t, "01949d63-8f64-7a1e-8b9b-f62344689113", outcome.Userid)
 	assert.Equal(t, 5.00, outcome.Value)
 	assert.False(t, outcome.Notification)
-	assert.Equal(t, defaultDate, outcome.ExpireDate)
+	assert.Equal(t, 0, outcome.ExpireDate)
 }
 
 func TestOutcomeUserIdIsRequired(t *testing.T) {
-	outcome, err := NewOutcome("Fixo", "Home", "Pix", "", 5.00, false, time.Now())
+	outcome, err := NewOutcome("Fixo", "Home", "Pix", "", 5.00, false, 1)
 	assert.Nil(t, err)
 
 	err = outcome.Validate()
@@ -48,7 +42,7 @@ func TestOutcomeUserIdIsRequired(t *testing.T) {
 }
 
 func TestOutcomeUserIdIsInvalid(t *testing.T) {
-	outcome, err := NewOutcome("Fixo", "Home", "Pix", "01949d63-8f64-7a1e8b9b-f62344689113", 5.00, false, time.Now())
+	outcome, err := NewOutcome("Fixo", "Home", "Pix", "01949d63-8f64-7a1e8b9b-f62344689113", 5.00, false, 1)
 	assert.Nil(t, err)
 
 	err = outcome.Validate()
@@ -57,7 +51,7 @@ func TestOutcomeUserIdIsInvalid(t *testing.T) {
 }
 
 func TestOutcomeTypeRequired(t *testing.T) {
-	outcome, err := NewOutcome("", "Home", "Pix", "01949d63-8f64-7a1e-8b9b-f62344689113", 5.00, false, time.Now())
+	outcome, err := NewOutcome("", "Home", "Pix", "01949d63-8f64-7a1e-8b9b-f62344689113", 5.00, false, 1)
 	assert.Nil(t, err)
 
 	err = outcome.Validate()
@@ -66,7 +60,7 @@ func TestOutcomeTypeRequired(t *testing.T) {
 }
 
 func TestOutcomeCategoryRequired(t *testing.T) {
-	outcome, err := NewOutcome("Fixo", "", "Pix", "01949d63-8f64-7a1e-8b9b-f62344689113", 5.00, false, time.Now())
+	outcome, err := NewOutcome("Fixo", "", "Pix", "01949d63-8f64-7a1e-8b9b-f62344689113", 5.00, false, 1)
 	assert.Nil(t, err)
 
 	err = outcome.Validate()
@@ -75,7 +69,7 @@ func TestOutcomeCategoryRequired(t *testing.T) {
 }
 
 func TestOutcomePaymentMethodRequired(t *testing.T) {
-	outcome, err := NewOutcome("Fixo", "Home", "", "01949d63-8f64-7a1e-8b9b-f62344689113", 5.00, false, time.Now())
+	outcome, err := NewOutcome("Fixo", "Home", "", "01949d63-8f64-7a1e-8b9b-f62344689113", 5.00, false, 1)
 	assert.Nil(t, err)
 
 	err = outcome.Validate()
@@ -84,7 +78,7 @@ func TestOutcomePaymentMethodRequired(t *testing.T) {
 }
 
 func TestOutcomePaymentMethodInvalid(t *testing.T) {
-	outcome, err := NewOutcome("Fixo", "Home", "Pi", "01949d63-8f64-7a1e-8b9b-f62344689113", 5.00, false, time.Now())
+	outcome, err := NewOutcome("Fixo", "Home", "Pi", "01949d63-8f64-7a1e-8b9b-f62344689113", 5.00, false, 1)
 	assert.Nil(t, err)
 
 	err = outcome.Validate()
@@ -93,7 +87,7 @@ func TestOutcomePaymentMethodInvalid(t *testing.T) {
 }
 
 func TestOutcomeValueInvalid(t *testing.T) {
-	outcome, err := NewOutcome("Fixo", "Home", "Pix", "01949d63-8f64-7a1e-8b9b-f62344689113", -5.00, false, time.Now())
+	outcome, err := NewOutcome("Fixo", "Home", "Pix", "01949d63-8f64-7a1e-8b9b-f62344689113", -5.00, false, 1)
 	assert.Nil(t, err)
 
 	err = outcome.Validate()

@@ -15,11 +15,11 @@ type Outcome struct {
 	Notification  bool      `json:"notification"`
 	Userid        string    `json:"userid"`
 	User          User      `json:"user"`
-	ExpireDate    time.Time `json:"expireDate"`
+	ExpireDate    int       `json:"expireDate"`
 	CreatedAt     time.Time `json:"createdAt"`
 }
 
-func NewOutcome(outcomeType, category, paymentMethod, userId string, value float64, notification bool, expireDate time.Time) (*Outcome, error) {
+func NewOutcome(outcomeType, category, paymentMethod, userId string, value float64, notification bool, expireDate int) (*Outcome, error) {
 	id, err := pkg.NewUUID()
 
 	if err != nil {
