@@ -24,7 +24,7 @@ type OutcomeInterface interface {
 	GetAllOutcomeByType(typeOutcome string, userId string) ([]entity.Outcome, int, error)
 	GetOutcomeAboutToExpire(daysToExpire int, userId string) ([]entity.Outcome, int, error)
 	GetOutcomeLessThan(value float64, userId string) ([]entity.Outcome, int, error)
-	GetOutcomeMoreThan(value float64, userId string) ([]entity.Outcome, int, error)
+	GetOutcomeHigherThan(value float64, userId string) ([]entity.Outcome, int, error)
 	DeleteOutcome(id string, userId string) (string, int, error)
 }
 

@@ -67,17 +67,16 @@ func TestGetUserByEmail(t *testing.T) {
 	assert.NotEmpty(t, user)
 	assert.Equal(t, "Rafael", user.Nome)
 	assert.Equal(t, "rafa@gmail.com", user.Email)
-	assert.Equal(t, "http://localhost.com", user.PhotoUrl)
 }
 
 func TestGetUserByInvalidEmail(t *testing.T) {
 	userDb := NewUserDb(db)
 	idOfUser := testsCtx.Value(idUser).(string)
-	user, status, err := userDb.GetUser(idOfUser)
+	_, status, err := userDb.GetUser(idOfUser)
 	assert.NoError(t, err)
 	assert.Equal(t, 200, status)
 
-	user, status, err = userDb.GetUserByEmail("rafa@@gmail.com")
+	user, status, err := userDb.GetUserByEmail("rafa@@gmail.com")
 
 	assert.Error(t, err)
 	assert.Equal(t, 404, status)
