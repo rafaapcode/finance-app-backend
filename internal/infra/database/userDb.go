@@ -2,7 +2,7 @@ package database
 
 import (
 	"database/sql"
-	"log"
+	"fmt"
 
 	"github.com/rafaapcode/finance-app-backend/internal/entity"
 )
@@ -18,10 +18,10 @@ func NewUserDb(db *sql.DB) *UserDb {
 }
 
 func (userDb *UserDb) CreateUser(user *entity.User) (int, error) {
-	stmt, err := userDb.DB.Prepare("INSERT INTO users VALUES ($1, $2, $3, $3)")
+	stmt, err := userDb.DB.Prepare("INSERT INTO users VALUES ($1, $2, $3, $4)")
 
 	if err != nil {
-		log.Fatal(err.Error())
+		fmt.Println(err.Error())
 		return 500, err
 	}
 	defer stmt.Close()
@@ -29,7 +29,7 @@ func (userDb *UserDb) CreateUser(user *entity.User) (int, error) {
 	_, err = stmt.Exec(user.Id.String(), user.Nome, user.Email, user.PhotoUrl)
 
 	if err != nil {
-		log.Fatal(err.Error())
+		fmt.Println(err.Error())
 		return 500, err
 	}
 
@@ -41,7 +41,7 @@ func (userDb *UserDb) GetUser(id string) (*entity.User, int, error) {
 	stmt, err := userDb.DB.Prepare("SELECT id, nome, email, photourl FROM users WHERE id = $1")
 
 	if err != nil {
-		log.Fatal(err.Error())
+		fmt.Println(err.Error())
 		return nil, 500, err
 	}
 	defer stmt.Close()
@@ -49,7 +49,7 @@ func (userDb *UserDb) GetUser(id string) (*entity.User, int, error) {
 	err = stmt.QueryRow(id).Scan(&user.Id, &user.Nome, &user.Email, &user.PhotoUrl)
 
 	if err != nil {
-		log.Fatal(err.Error())
+		fmt.Println(err.Error())
 		return nil, 404, err
 	}
 
@@ -60,7 +60,7 @@ func (userDb *UserDb) DeleteUser(id string) (string, int, error) {
 	stmt, err := userDb.DB.Prepare("DELETE FROM users where id = $1")
 
 	if err != nil {
-		log.Fatal(err.Error())
+		fmt.Println(err.Error())
 		return "", 500, err
 	}
 	defer stmt.Close()
@@ -68,7 +68,7 @@ func (userDb *UserDb) DeleteUser(id string) (string, int, error) {
 	_, err = stmt.Exec(id)
 
 	if err != nil {
-		log.Fatal(err.Error())
+		fmt.Println(err.Error())
 		return "", 404, err
 	}
 

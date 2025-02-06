@@ -12,7 +12,6 @@ func Initialize() (*sql.DB, error) {
 	if err != nil {
 		return nil, fmt.Errorf(err.Error())
 	}
-	defer db.Close()
 
 	sqlQuery := `
 		CREATE TABLE IF NOT EXISTS Users (
