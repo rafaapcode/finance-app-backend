@@ -27,6 +27,17 @@ func TestCreateInvestment(t *testing.T) {
 	testsCtx = context.WithValue(defaultContext, idInvestment, inv.Id.String())
 }
 
+func TestGetInvestmentById(t *testing.T) {
+	invDb := NewInvestmentDB(db)
+	invId := testsCtx.Value(idInvestment).(string)
+
+	inv, status, err := invDb.GetInvestmentById(invId)
+
+	assert.NoError(t, err)
+	assert.Equal(t, 200, status)
+	assert.NotEmpty(t, inv)
+}
+
 func TestGetTotalOfInvestment(t *testing.T) {
 	invDb := NewInvestmentDB(db)
 
@@ -69,9 +80,21 @@ func TestGetDiversificationPortfolio(t *testing.T) {
 
 func TestUpdateInvestment(t *testing.T) {
 	invDb := NewInvestmentDB(db)
+	invId := testsCtx.Value(idInvestment).(string)
 
-	metrics, status, err := invDb.GetPortfolioDiversification("0194dc4c-39cf-7b69-8f16-5ee8daa95aa2")
+	inv, status, err := invDb.GetInvestmentById(invId)
 	assert.NoError(t, err)
 	assert.Equal(t, 200, status)
-	assert.NotEmpty(t, metrics.Metrics["Ações"])
+
+	inv.Profit = 10.10
+	inv.Percentage = 0.5
+
+	status, err = invDb.UpdateInvestment(&inv)
+
+	assert.NoError(t, err)
+	assert.Equal(t, 200, status)
+
+	inv, _, _ = invDb.GetInvestmentById(invId)
+
+	assert.Equal(t, 10.10, inv.Profit)
 }

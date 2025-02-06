@@ -33,6 +33,7 @@ type InvestmentInterface interface {
 	GetTotalOfInvestment(userid string) (int, int, error)
 	GetAllOfInvestment(pageNumber int, sort, userid string) ([]entity.Investment, int, error)
 	GetInvestmentByName(name, userid string) (entity.Investment, int, error)
+	GetInvestmentById(id string) (entity.Investment, int, error)
 	GetInvestmentByCategory(pageNumber int, category, userid string) ([]entity.Investment, int, error)
 	UpdateInvestment(newData *entity.Investment) (int, error)
 	GetAssetGrowth(userid string) (entity.Metrics, int, error)

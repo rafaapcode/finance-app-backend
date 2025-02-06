@@ -103,6 +103,27 @@ func (invDb *InvestmentDb) GetInvestmentByName(name, userid string) (entity.Inve
 	return investment, 200, nil
 }
 
+func (invDb *InvestmentDb) GetInvestmentById(id string) (entity.Investment, int, error) {
+	var investment entity.Investment
+	stmt, err := invDb.DB.Prepare("SELECT id, userid, category, stockcode, totalquantity, buyprice, sellprice, percentage, value, profit, buydate, selldate, createdat, lastsupplydate FROM investment WHERE id = $1")
+
+	if err != nil {
+		fmt.Println(err.Error())
+		return investment, 500, err
+	}
+
+	defer stmt.Close()
+
+	err = stmt.QueryRow(id).Scan(&investment.Id, &investment.Userid, &investment.Category, &investment.StockCode, &investment.TotalQuantity, &investment.BuyPrice, &investment.SellPrice, &investment.Percentage, &investment.Value, &investment.Profit, &investment.BuyDate, &investment.SellDate, &investment.CreatedAt, &investment.LastSupplyDate)
+
+	if err != nil {
+		fmt.Println(err.Error())
+		return investment, 404, err
+	}
+
+	return investment, 200, nil
+}
+
 func (invDb *InvestmentDb) GetInvestmentByCategory(pageNumber int, category, userid string) ([]entity.Investment, int, error) {
 	var investments []entity.Investment
 
@@ -110,7 +131,23 @@ func (invDb *InvestmentDb) GetInvestmentByCategory(pageNumber int, category, use
 }
 
 func (invDb *InvestmentDb) UpdateInvestment(newData *entity.Investment) (int, error) {
-	return 500, nil
+	stmt, err := invDb.DB.Prepare("UPDATE investment SET totalquantity = $1, sellprice = $2, percentage = $3, value = $4, profit = $5, buydate = $6, selldate = $7, lastsupplydate = $8 WHERE id = $9 AND userid = $10")
+
+	if err != nil {
+		fmt.Println(err.Error())
+		return 500, err
+	}
+
+	defer stmt.Close()
+
+	_, err = stmt.Exec(newData.TotalQuantity, newData.SellPrice, newData.Percentage, newData.Value, newData.Profit, newData.BuyDate, newData.SellDate, newData.LastSupplyDate, newData.Id.String(), newData.Userid)
+
+	if err != nil {
+		fmt.Println(err.Error())
+		return 404, err
+	}
+
+	return 200, nil
 }
 
 func (invDb *InvestmentDb) GetAssetGrowth(userid string) (entity.Metrics, int, error) {
