@@ -98,3 +98,127 @@ func TestUpdateInvestment(t *testing.T) {
 
 	assert.Equal(t, 10.10, inv.Profit)
 }
+
+func TestGetFirstPageOfAllInvestment(t *testing.T) {
+	invDb := NewInvestmentDB(db)
+
+	inv, status, err := invDb.GetAllOfInvestment("0194dc4c-39cf-7b69-8f16-5ee8daa95aa2")
+
+	assert.NoError(t, err)
+	assert.Equal(t, 200, status)
+	assert.Equal(t, 5, len(inv))
+}
+
+func TestGetFirstPageOfAllInvestmentInvalidUserid(t *testing.T) {
+	invDb := NewInvestmentDB(db)
+
+	inv, status, err := invDb.GetAllOfInvestment("0194dc4c-39cf-7b69-8f16-5ee8daa95aa")
+
+	assert.Error(t, err)
+	assert.Equal(t, 404, status)
+	assert.Equal(t, 0, len(inv))
+}
+
+func TestGetFirstPageOfAllInvestmentByCategory(t *testing.T) {
+	invDb := NewInvestmentDB(db)
+
+	inv, status, err := invDb.GetInvestmentByCategory("Ações", "0194dc4c-39cf-7b69-8f16-5ee8daa95aa2")
+
+	assert.NoError(t, err)
+	assert.Equal(t, 200, status)
+	assert.Equal(t, 5, len(inv))
+}
+
+func TestGetFirstPageOfAllInvestmentInvalidUseridByCategory(t *testing.T) {
+	invDb := NewInvestmentDB(db)
+
+	inv, status, err := invDb.GetInvestmentByCategory("Acoes", "0194dc4c-39cf-7b69-8f16-5ee8daa95aa2")
+
+	assert.Error(t, err)
+	assert.Equal(t, 404, status)
+	assert.Equal(t, 0, len(inv))
+}
+
+func TestGetNextPageOfAllInvestment(t *testing.T) {
+	invDb := NewInvestmentDB(db)
+
+	inv, status, err := invDb.GetAllOfInvestment("0194dc4c-39cf-7b69-8f16-5ee8daa95aa2")
+
+	assert.NoError(t, err)
+	assert.Equal(t, 200, status)
+	assert.Equal(t, 5, len(inv))
+
+	nextInv, status, err := invDb.GetNextPageAllOfInvestment(inv[4].Id.String(), "0194dc4c-39cf-7b69-8f16-5ee8daa95aa2")
+
+	assert.NoError(t, err)
+	assert.Equal(t, 200, status)
+	assert.Equal(t, 5, len(nextInv))
+	assert.NotEqual(t, nextInv[0].Id.String(), inv[0].Id.String())
+}
+
+func TestGetPreviousPageOfAllInvestment(t *testing.T) {
+	invDb := NewInvestmentDB(db)
+
+	inv, status, err := invDb.GetAllOfInvestment("0194dc4c-39cf-7b69-8f16-5ee8daa95aa2")
+
+	assert.NoError(t, err)
+	assert.Equal(t, 200, status)
+	assert.Equal(t, 5, len(inv))
+
+	nextInv, status, err := invDb.GetNextPageAllOfInvestment(inv[4].Id.String(), "0194dc4c-39cf-7b69-8f16-5ee8daa95aa2")
+
+	assert.NoError(t, err)
+	assert.Equal(t, 200, status)
+	assert.Equal(t, 5, len(nextInv))
+	assert.NotEqual(t, nextInv[0].Id.String(), inv[0].Id.String())
+
+	prevInv, status, err := invDb.GetPreviousPageAllOfInvestment(nextInv[0].Id.String(), "0194dc4c-39cf-7b69-8f16-5ee8daa95aa2")
+
+	assert.NoError(t, err)
+	assert.Equal(t, 200, status)
+	assert.Equal(t, 5, len(nextInv))
+	assert.Equal(t, prevInv[0].Id.String(), inv[0].Id.String())
+	assert.NotEqual(t, prevInv[0].Id.String(), nextInv[0].Id.String())
+}
+
+func TestGetNextPageOfAllInvestmentByCategory(t *testing.T) {
+	invDb := NewInvestmentDB(db)
+
+	inv, status, err := invDb.GetInvestmentByCategory("Ações", "0194dc4c-39cf-7b69-8f16-5ee8daa95aa2")
+
+	assert.NoError(t, err)
+	assert.Equal(t, 200, status)
+	assert.Equal(t, 5, len(inv))
+
+	nextInv, status, err := invDb.GetNextPageInvestmentByCategory("Ações", "0194dc4c-39cf-7b69-8f16-5ee8daa95aa2", inv[4].Id.String())
+
+	assert.NoError(t, err)
+	assert.Equal(t, 200, status)
+	assert.Equal(t, 5, len(inv))
+	assert.NotEqual(t, nextInv[0].Id.String(), inv[0].Id.String())
+}
+
+func TestGetPreviousPageOfAllInvestmentByCategory(t *testing.T) {
+	invDb := NewInvestmentDB(db)
+
+	inv, status, err := invDb.GetInvestmentByCategory("Ações", "0194dc4c-39cf-7b69-8f16-5ee8daa95aa2")
+
+	assert.NoError(t, err)
+	assert.Equal(t, 200, status)
+	assert.Equal(t, 5, len(inv))
+
+	nextInv, status, err := invDb.GetNextPageInvestmentByCategory("Ações", "0194dc4c-39cf-7b69-8f16-5ee8daa95aa2", inv[4].Id.String())
+
+	assert.NoError(t, err)
+	assert.Equal(t, 200, status)
+	assert.Equal(t, 5, len(inv))
+	assert.NotEqual(t, nextInv[0].Id.String(), inv[0].Id.String())
+
+	prevInv, status, err := invDb.GetPreviousPageInvestmentByCategory("Ações", "0194dc4c-39cf-7b69-8f16-5ee8daa95aa2", nextInv[0].Id.String())
+
+	assert.NoError(t, err)
+	assert.Equal(t, 200, status)
+	assert.Equal(t, 5, len(nextInv))
+	assert.Equal(t, prevInv[0].Id.String(), inv[0].Id.String())
+	assert.NotEqual(t, prevInv[0].Id.String(), nextInv[0].Id.String())
+}

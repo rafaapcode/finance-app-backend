@@ -76,10 +76,115 @@ func (invDb *InvestmentDb) GetTotalOfInvestment(userid string) (float64, int, er
 	return total, 200, nil
 }
 
-func (invDb *InvestmentDb) GetAllOfInvestment(pageNumber int, sort, userid string) ([]entity.Investment, int, error) {
+func (invDb *InvestmentDb) GetAllOfInvestment(userid string) ([]entity.Investment, int, error) {
 	var investments []entity.Investment
+	stmt, err := invDb.DB.Prepare("SELECT id, userid, category, stockcode, totalquantity, buyprice, sellprice, percentage, value, profit, buydate, selldate, createdat, lastsupplydate FROM investment WHERE userid = $1 ORDER BY createdat ASC LIMIT 5")
 
-	return investments, 500, nil
+	if err != nil {
+		fmt.Println(err.Error())
+		return investments, 500, err
+	}
+
+	defer stmt.Close()
+
+	rows, err := stmt.Query(userid)
+
+	if err != nil {
+		fmt.Println(err.Error())
+		return investments, 404, err
+	}
+
+	for rows.Next() {
+		var investment entity.Investment
+
+		err = rows.Scan(&investment.Id, &investment.Userid, &investment.Category, &investment.StockCode, &investment.TotalQuantity, &investment.BuyPrice, &investment.SellPrice, &investment.Percentage, &investment.Value, &investment.Profit, &investment.BuyDate, &investment.SellDate, &investment.CreatedAt, &investment.LastSupplyDate)
+
+		if err != nil {
+			return investments, 404, err
+		}
+
+		investments = append(investments, investment)
+	}
+
+	if len(investments) == 0 {
+		return investments, 404, fmt.Errorf("nenhum investimento encontrado")
+	}
+
+	return investments, 200, nil
+}
+
+func (invDb *InvestmentDb) GetNextPageAllOfInvestment(lastInvId, userid string) ([]entity.Investment, int, error) {
+	var investments []entity.Investment
+	stmt, err := invDb.DB.Prepare("SELECT id, userid, category, stockcode, totalquantity, buyprice, sellprice, percentage, value, profit, buydate, selldate, createdat, lastsupplydate FROM investment WHERE id > $1 AND userid = $2 ORDER BY createdat ASC LIMIT 5")
+
+	if err != nil {
+		fmt.Println(err.Error())
+		return investments, 500, err
+	}
+
+	defer stmt.Close()
+
+	rows, err := stmt.Query(lastInvId, userid)
+
+	if err != nil {
+		fmt.Println(err.Error())
+		return investments, 404, err
+	}
+
+	for rows.Next() {
+		var investment entity.Investment
+
+		err = rows.Scan(&investment.Id, &investment.Userid, &investment.Category, &investment.StockCode, &investment.TotalQuantity, &investment.BuyPrice, &investment.SellPrice, &investment.Percentage, &investment.Value, &investment.Profit, &investment.BuyDate, &investment.SellDate, &investment.CreatedAt, &investment.LastSupplyDate)
+
+		if err != nil {
+			return investments, 404, err
+		}
+
+		investments = append(investments, investment)
+	}
+
+	if len(investments) == 0 {
+		return investments, 404, fmt.Errorf("nenhum investimento encontrado")
+	}
+
+	return investments, 200, nil
+}
+
+func (invDb *InvestmentDb) GetPreviousPageAllOfInvestment(firstInvId, userid string) ([]entity.Investment, int, error) {
+	var investments []entity.Investment
+	stmt, err := invDb.DB.Prepare("SELECT id, userid, category, stockcode, totalquantity, buyprice, sellprice, percentage, value, profit, buydate, selldate, createdat, lastsupplydate FROM investment WHERE id < $1 AND userid = $2 ORDER BY createdat ASC LIMIT 5")
+
+	if err != nil {
+		fmt.Println(err.Error())
+		return investments, 500, err
+	}
+
+	defer stmt.Close()
+
+	rows, err := stmt.Query(firstInvId, userid)
+
+	if err != nil {
+		fmt.Println(err.Error())
+		return investments, 404, err
+	}
+
+	for rows.Next() {
+		var investment entity.Investment
+
+		err = rows.Scan(&investment.Id, &investment.Userid, &investment.Category, &investment.StockCode, &investment.TotalQuantity, &investment.BuyPrice, &investment.SellPrice, &investment.Percentage, &investment.Value, &investment.Profit, &investment.BuyDate, &investment.SellDate, &investment.CreatedAt, &investment.LastSupplyDate)
+
+		if err != nil {
+			return investments, 404, err
+		}
+
+		investments = append(investments, investment)
+	}
+
+	if len(investments) == 0 {
+		return investments, 404, fmt.Errorf("nenhum investimento encontrado")
+	}
+
+	return investments, 200, nil
 }
 
 func (invDb *InvestmentDb) GetInvestmentByName(name, userid string) (entity.Investment, int, error) {
@@ -124,10 +229,115 @@ func (invDb *InvestmentDb) GetInvestmentById(id string) (entity.Investment, int,
 	return investment, 200, nil
 }
 
-func (invDb *InvestmentDb) GetInvestmentByCategory(pageNumber int, category, userid string) ([]entity.Investment, int, error) {
+func (invDb *InvestmentDb) GetInvestmentByCategory(category, userid string) ([]entity.Investment, int, error) {
 	var investments []entity.Investment
+	stmt, err := invDb.DB.Prepare("SELECT id, userid, category, stockcode, totalquantity, buyprice, sellprice, percentage, value, profit, buydate, selldate, createdat, lastsupplydate FROM investment WHERE category = $1 AND userid = $2 ORDER BY createdat ASC LIMIT 5")
 
-	return investments, 500, nil
+	if err != nil {
+		fmt.Println(err.Error())
+		return investments, 500, err
+	}
+
+	defer stmt.Close()
+
+	rows, err := stmt.Query(category, userid)
+
+	if err != nil {
+		fmt.Println(err.Error())
+		return investments, 404, err
+	}
+
+	for rows.Next() {
+		var investment entity.Investment
+
+		err = rows.Scan(&investment.Id, &investment.Userid, &investment.Category, &investment.StockCode, &investment.TotalQuantity, &investment.BuyPrice, &investment.SellPrice, &investment.Percentage, &investment.Value, &investment.Profit, &investment.BuyDate, &investment.SellDate, &investment.CreatedAt, &investment.LastSupplyDate)
+
+		if err != nil {
+			return investments, 404, err
+		}
+
+		investments = append(investments, investment)
+	}
+
+	if len(investments) == 0 {
+		return investments, 404, fmt.Errorf("nenhum investimento encontrado")
+	}
+
+	return investments, 200, nil
+}
+
+func (invDb *InvestmentDb) GetNextPageInvestmentByCategory(category, userid, lastInvId string) ([]entity.Investment, int, error) {
+	var investments []entity.Investment
+	stmt, err := invDb.DB.Prepare("SELECT id, userid, category, stockcode, totalquantity, buyprice, sellprice, percentage, value, profit, buydate, selldate, createdat, lastsupplydate FROM investment WHERE category = $1 AND userid = $2 AND id > $3 ORDER BY createdat ASC LIMIT 5")
+
+	if err != nil {
+		fmt.Println(err.Error())
+		return investments, 500, err
+	}
+
+	defer stmt.Close()
+
+	rows, err := stmt.Query(category, userid, lastInvId)
+
+	if err != nil {
+		fmt.Println(err.Error())
+		return investments, 404, err
+	}
+
+	for rows.Next() {
+		var investment entity.Investment
+
+		err = rows.Scan(&investment.Id, &investment.Userid, &investment.Category, &investment.StockCode, &investment.TotalQuantity, &investment.BuyPrice, &investment.SellPrice, &investment.Percentage, &investment.Value, &investment.Profit, &investment.BuyDate, &investment.SellDate, &investment.CreatedAt, &investment.LastSupplyDate)
+
+		if err != nil {
+			return investments, 404, err
+		}
+
+		investments = append(investments, investment)
+	}
+
+	if len(investments) == 0 {
+		return investments, 404, fmt.Errorf("nenhum investimento encontrado")
+	}
+
+	return investments, 200, nil
+}
+
+func (invDb *InvestmentDb) GetPreviousPageInvestmentByCategory(category, userid, firstInvId string) ([]entity.Investment, int, error) {
+	var investments []entity.Investment
+	stmt, err := invDb.DB.Prepare("SELECT id, userid, category, stockcode, totalquantity, buyprice, sellprice, percentage, value, profit, buydate, selldate, createdat, lastsupplydate FROM investment WHERE category = $1 AND userid = $2 AND id < $3 ORDER BY createdat ASC LIMIT 5")
+
+	if err != nil {
+		fmt.Println(err.Error())
+		return investments, 500, err
+	}
+
+	defer stmt.Close()
+
+	rows, err := stmt.Query(category, userid, firstInvId)
+
+	if err != nil {
+		fmt.Println(err.Error())
+		return investments, 404, err
+	}
+
+	for rows.Next() {
+		var investment entity.Investment
+
+		err = rows.Scan(&investment.Id, &investment.Userid, &investment.Category, &investment.StockCode, &investment.TotalQuantity, &investment.BuyPrice, &investment.SellPrice, &investment.Percentage, &investment.Value, &investment.Profit, &investment.BuyDate, &investment.SellDate, &investment.CreatedAt, &investment.LastSupplyDate)
+
+		if err != nil {
+			return investments, 404, err
+		}
+
+		investments = append(investments, investment)
+	}
+
+	if len(investments) == 0 {
+		return investments, 404, fmt.Errorf("nenhum investimento encontrado")
+	}
+
+	return investments, 200, nil
 }
 
 func (invDb *InvestmentDb) UpdateInvestment(newData *entity.Investment) (int, error) {
