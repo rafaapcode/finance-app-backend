@@ -38,7 +38,7 @@ type InvestmentInterface interface {
 	UpdateInvestment(newData *entity.Investment) (int, error)
 	GetAssetGrowth(userid string) (entity.Metrics, int, error)
 	GetPortfolioDiversification(userid string) (entity.Metrics, int, error)
-	GetMonthInvestment(userid string, month time.Month) (entity.Metrics, int, error)
+	GetMonthInvestment(userid string, month int) (entity.Metrics, int, error)
 }
 
 type IncomeInterface interface {

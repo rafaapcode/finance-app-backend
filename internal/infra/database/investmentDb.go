@@ -462,7 +462,44 @@ func (invDb *InvestmentDb) GetPortfolioDiversification(userid string) (entity.Me
 	return *entity.NewMetrics(metrics), 200, nil
 }
 
-// A testar
-func (invDb *InvestmentDb) GetMonthInvestment(userid string, month time.Month) (entity.Metrics, int, error) {
-	return entity.Metrics{}, 200, nil
+func (invDb *InvestmentDb) GetMonthInvestment(userid string, month int) (entity.Metrics, int, error) {
+	var metrics map[string]float64 = make(map[string]float64)
+
+	stmt, err := invDb.DB.Prepare("SELECT buydate, value FROM investment WHERE date_part('month', buydate) = $1 AND userid = $2")
+
+	if err != nil {
+		fmt.Println(err.Error())
+		return entity.Metrics{}, 500, err
+	}
+	defer stmt.Close()
+
+	rows, err := stmt.Query(month, userid)
+
+	if err != nil {
+		fmt.Println(err.Error())
+		return entity.Metrics{}, 404, err
+	}
+
+	for rows.Next() {
+		var buyDate string
+		var value float64
+
+		err = rows.Scan(&buyDate, &value)
+
+		if err != nil {
+			fmt.Println(err.Error())
+			return entity.Metrics{}, 404, err
+		}
+
+		_, ok := metrics[buyDate]
+
+		if !ok {
+			metrics[buyDate] = value
+		} else {
+			metrics[buyDate] += value
+		}
+
+	}
+
+	return *entity.NewMetrics(metrics), 200, nil
 }
