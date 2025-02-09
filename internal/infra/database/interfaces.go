@@ -43,10 +43,16 @@ type InvestmentInterface interface {
 
 type IncomeInterface interface {
 	CreateIncome(income *entity.Income) (int, error)
-	GetIncomeById(id string) (*entity.Income, int, error)
-	GetAllIncomeOfMonth(month time.Time, userId string) ([]entity.Income, int, error) // AllExtraIncomeOfMonth + Income
-	UpdateIncome(newData *entity.Income) (int, error)
+	GetIncomeValueByUserId(userId string) (int, int, error)
 	DeleteIncome(id string) (int, error)
+}
+
+type ExtraIncomeInterface interface {
+	CreateExtraIncome(income *entity.ExtraIncome) (int, error)
+	GetExtraIncomeById(id string) (*entity.ExtraIncome, int, error)
+	GetAllExtracIncomeOfMonth(month int, userId string) ([]entity.ExtraIncome, int, error)
+	GetTotalValueOfExtracIncomeOfTheMonth(month int, userId string) (float64, int, error)
+	DeleteExtraIncome(id string) (int, error)
 }
 
 type GoalsInterface interface {
