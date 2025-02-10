@@ -56,9 +56,9 @@ type ExtraIncomeInterface interface {
 }
 
 type GoalsInterface interface {
-	CreateGoal(goals entity.Goals) (int, error)
-	UpdateGoal(newGoal entity.Goals) (int, error)
-	DeleteGoal(goalId string) (string, int, error)
+	CreateGoal(goals *entity.Goals) (int, error)
+	UpdateGoal(id string, newPercentage float64) (int, error)
+	DeleteGoal(goalId string) (int, error)
 	ListAllGoals(userId string) ([]entity.Goals, int, error)
 }
 
