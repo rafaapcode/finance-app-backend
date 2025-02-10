@@ -34,7 +34,7 @@ func (g *GoalsDb) CreateGoal(goals *entity.Goals) (int, error) {
 	}
 	defer stmt.Close()
 
-	_, err = stmt.Exec(&goals.Id, &goals.Userid, &goals.Category, &goals.Percentage, &goals.CreatedAt)
+	_, err = stmt.Exec(goals.Id.String(), goals.Userid, goals.Category, goals.Percentage, goals.CreatedAt)
 
 	if err != nil {
 		fmt.Println(err.Error())

@@ -63,23 +63,23 @@ type GoalsInterface interface {
 }
 
 type SellOperationInterface interface {
-	CreateSellOperation(sellOp entity.SellOperation) (int, error)
-	GetSellOperationByName(investmentId string, stockName string) (entity.SellOperation, int, error)
+	CreateSellOperation(sellOp *entity.SellOperation) (int, error)
+	GetSellOperationByName(investmentId string, stockName string) (*entity.SellOperation, int, error)
 	GetSellOperationsLessThan(investmentId string, value float64) ([]entity.SellOperation, int, error)
 	GetSellOperationsHigherThan(investmentId string, value float64) ([]entity.SellOperation, int, error)
-	GetSellOperationsByCategory(investmentId string, category float64) ([]entity.SellOperation, int, error)
+	GetSellOperationsByCategory(investmentId, category string) ([]entity.SellOperation, int, error)
 	ListAllSellOperation(investmentId string) ([]entity.SellOperation, int, error)
-	ListAllSellOperationOfMonth(investmentId string, month time.Time) ([]entity.SellOperation, int, error)
+	ListAllSellOperationOfMonth(investmentId string, month int) ([]entity.SellOperation, int, error)
 }
 
 type BuyOperationInterface interface {
-	CreateBuyOperation(buyOp entity.BuyOperation) (int, error)
-	GetBuyOperationByName(investmentId string, stockName string) (entity.BuyOperation, int, error)
+	CreateBuyOperation(buyOp *entity.BuyOperation) (int, error)
+	GetBuyOperationByName(investmentId string, stockName string) (*entity.BuyOperation, int, error)
 	GetBuyOperationsLessThan(investmentId string, value float64) ([]entity.BuyOperation, int, error)
 	GetBuyOperationsHigherThan(investmentId string, value float64) ([]entity.BuyOperation, int, error)
-	GetBuyOperationsByCategory(investmentId string, category float64) ([]entity.BuyOperation, int, error)
+	GetBuyOperationsByCategory(investmentId, category string) ([]entity.BuyOperation, int, error)
 	ListAllBuyOperation(investmentId string) ([]entity.BuyOperation, int, error)
-	ListAllBuyOperationOfMonth(investmentId string, month time.Time) ([]entity.BuyOperation, int, error)
+	ListAllBuyOperationOfMonth(investmentId string, month int) ([]entity.BuyOperation, int, error)
 }
 
 type SupplyOperationInterface interface {
