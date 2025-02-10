@@ -82,3 +82,69 @@ func (extInc *ExtraIncomeDb) DeleteExtraIncome(id string) (int, error) {
 
 	return 200, nil
 }
+
+func (extInc *ExtraIncomeDb) GetAllExtraIncomeOfMonth(month int, userId string) ([]entity.ExtraIncome, int, error) {
+	var extraIncomeOfMonth []entity.ExtraIncome
+	stmt, err := extInc.DB.Prepare("SELECT id, userid, category, value, date FROM extraincome WHERE date_part('month', buydate) = $1 AND userid = $2")
+
+	if err != nil {
+		return extraIncomeOfMonth, 500, err
+	}
+	defer stmt.Close()
+
+	rows, err := stmt.Query(month, userId)
+
+	if err != nil {
+		fmt.Println(err.Error())
+		return extraIncomeOfMonth, 404, err
+	}
+
+	for rows.Next() {
+		var extraInc entity.ExtraIncome
+
+		err = rows.Scan(&extraInc.Id, &extraInc.Userid, &extraInc.Category, &extraInc.Value, &extraInc.Date)
+
+		if err != nil {
+			return extraIncomeOfMonth, 500, nil
+		}
+
+		extraIncomeOfMonth = append(extraIncomeOfMonth, extraInc)
+	}
+
+	if len(extraIncomeOfMonth) == 0 {
+		return extraIncomeOfMonth, 404, err
+	}
+
+	return extraIncomeOfMonth, 200, nil
+}
+
+func (extInc *ExtraIncomeDb) GetTotalValueOfExtracIncomeOfTheMonth(month int, userId string) (float64, int, error) {
+	var total float64
+	stmt, err := extInc.DB.Prepare("SELECT sum(value) FROM extraincome WHERE date_part('month', buydate) = $1 AND userid = $2")
+
+	if err != nil {
+		return 0.0, 500, err
+	}
+	defer stmt.Close()
+
+	rows, err := stmt.Query(month, userId)
+
+	if err != nil {
+		fmt.Println(err.Error())
+		return 0.0, 404, err
+	}
+
+	for rows.Next() {
+		var value float64
+
+		err = rows.Scan(&value)
+
+		if err != nil {
+			return 0.0, 500, nil
+		}
+
+		total += value
+	}
+
+	return total, 200, nil
+}
