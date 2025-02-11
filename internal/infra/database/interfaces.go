@@ -1,8 +1,6 @@
 package database
 
 import (
-	"time"
-
 	"github.com/rafaapcode/finance-app-backend/internal/entity"
 )
 
@@ -83,11 +81,11 @@ type BuyOperationInterface interface {
 }
 
 type SupplyOperationInterface interface {
-	CreateSupplyOperation(supplyOp entity.SupplyOperation) (int, error)
+	CreateSupplyOperation(supplyOp *entity.SupplyOperation) (int, error)
 	GetSupplyOperationByName(investmentId string, stockName string) ([]entity.SupplyOperation, int, error)
 	GetSupplyOperationsLessThan(investmentId string, value float64) ([]entity.SupplyOperation, int, error)
 	GetSupplyOperationsHigherThan(investmentId string, value float64) ([]entity.SupplyOperation, int, error)
-	GetSupplyOperationsByCategory(investmentId string, category float64) ([]entity.SupplyOperation, int, error)
+	GetSupplyOperationsByCategory(investmentId, category string) ([]entity.SupplyOperation, int, error)
 	ListAllSupplyOperation(investmentId string) ([]entity.SupplyOperation, int, error)
-	ListAllSupplyOperationOfMonth(investmentId string, month time.Time) ([]entity.SupplyOperation, int, error)
+	ListAllSupplyOperationOfMonth(investmentId string, month int) ([]entity.SupplyOperation, int, error)
 }
