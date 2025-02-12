@@ -2,11 +2,15 @@ package main
 
 import (
 	"database/sql"
+	"net/http"
 
+	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
 	"github.com/joho/godotenv"
-	"github.com/labstack/echo/v4"
 	_ "github.com/lib/pq"
 	"github.com/rafaapcode/finance-app-backend/config"
+	"github.com/rafaapcode/finance-app-backend/internal/infra/database"
+	"github.com/rafaapcode/finance-app-backend/internal/infra/webservers/handlers"
 )
 
 var db *sql.DB
@@ -24,23 +28,28 @@ func init() {
 		panic("Error to connect with database")
 	}
 
-	// err = db.Ping()
-
-	// if err != nil {
-	// 	panic("Error to connect with database")
-	// }
-
 	db = database
 }
 
 func main() {
-	e := echo.New()
+	jwtConfig := config.GetJwtSecrets()
 	defer db.Close()
-	// Health Endpoint
-	e.GET("/health", func(c echo.Context) error {
-		return c.String(200, "Your API is HEALTHY!")
+	r := chi.NewRouter()
+	usersDb := database.NewUserDb(db)
+	userHandler := handlers.NewUserHandler(usersDb)
+
+	// Middlewares
+	r.Use(middleware.Logger)
+	r.Use(middleware.Recoverer)
+
+	// Middleware with Contexts
+	r.Use(middleware.WithValue("token", jwtConfig.TokenAuth))
+	r.Use(middleware.WithValue("jwtexp", jwtConfig.Jwtexpires))
+
+	r.Route("/users", func(r chi.Router) {
+		r.Post("/token", userHandler.GetJwt)
+		r.Post("/", userHandler.Create)
 	})
 
-	port := config.GetPort()
-	e.Logger.Fatal(e.Start(port))
+	http.ListenAndServe(config.GetPort(), r)
 }
