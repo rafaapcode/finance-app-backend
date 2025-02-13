@@ -1,112 +1,140 @@
 package handlers
 
 import (
+	"context"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"time"
 
 	"github.com/go-chi/jwtauth"
-	"github.com/rafaapcode/finance-app-backend/internal/dto"
 	"github.com/rafaapcode/finance-app-backend/internal/entity"
 	"github.com/rafaapcode/finance-app-backend/internal/infra/database"
+	"golang.org/x/oauth2"
 )
 
-type UserHandler struct {
-	Userdb       database.UserInterface
-	JwtExpiresIn int
+type googleAuth struct {
+	Id            string `json:"id"`
+	Email         string `json:"email"`
+	VerifiedEmail bool   `json:"verified_email"`
+	Name          string `json:"name"`
+	GivenName     string `json:"given_name"`
+	FamilyName    string `json:"family_name"`
+	Picture       string `json:"picture"`
+	Locale        string `json:"locale"`
 }
 
-func NewUserHandler(user database.UserInterface) *UserHandler {
+type UserHandler struct {
+	Userdb database.UserInterface
+	App    *oauth2.Config
+}
+
+func NewUserHandler(user database.UserInterface, googleApp *oauth2.Config) *UserHandler {
 	return &UserHandler{
 		Userdb: user,
+		App:    googleApp,
 	}
 }
 
-func (u *UserHandler) GetJwt(w http.ResponseWriter, r *http.Request) {
-	var user dto.GetJwtInput
-	jwt := r.Context().Value("token").(*jwtauth.JWTAuth)
-	expToken := r.Context().Value("jwtexp").(int)
-	err := json.NewDecoder(r.Body).Decode(&user)
+func (u *UserHandler) getJwt(email string, JwtExpiresIn int, jwt *jwtauth.JWTAuth) (string, error) {
+	userData, _, err := u.Userdb.GetUserByEmail(email)
 	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		return
-	}
-	userData, status, err := u.Userdb.GetUserByEmail(user.Email)
-	if err != nil {
-		w.WriteHeader(status)
-		return
+		return "", err
 	}
 
 	_, token, err := jwt.Encode(map[string]interface{}{
 		"sub": userData.Id.String(),
-		"exp": time.Now().Add(time.Second * time.Duration(expToken)).Unix(),
+		"exp": time.Now().Add(time.Second * time.Duration(JwtExpiresIn)).Unix(),
 	})
 
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
+		return "", err
+	}
+
+	return token, nil
+}
+
+func (u *UserHandler) create(newUser *entity.User) (int, error) {
+
+	_, status, err := u.Userdb.GetUserByEmail(newUser.Email)
+
+	if status == 200 {
+		return status, err
+	}
+
+	status, err = u.Userdb.CreateUser(newUser)
+	if err != nil {
+		return status, err
+	}
+
+	return status, nil
+}
+
+func (u *UserHandler) Auth(w http.ResponseWriter, r *http.Request) {
+	url := u.App.AuthCodeURL("state", oauth2.AccessTypeOffline)
+	http.Redirect(w, r, url, http.StatusTemporaryRedirect)
+}
+
+func (u *UserHandler) CallbackAuth(w http.ResponseWriter, r *http.Request) {
+	code := r.URL.Query().Get("code")
+
+	t, err := u.App.Exchange(context.Background(), code)
+
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	client := u.App.Client(context.Background(), t)
+
+	resp, err := client.Get("https://www.googleapis.com/oauth2/v2/userinfo")
+
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	var userData googleAuth
+	if err := json.NewDecoder(resp.Body).Decode(&userData); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	newUser, err := entity.NewUser(userData.Name, userData.Email, userData.Picture)
+
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	err = newUser.Validate()
+
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	status, err := u.create(newUser)
+
+	if err != nil {
+		fmt.Println("Erro aqui")
+		http.Error(w, err.Error(), status)
+		return
+	}
+	expJwt := r.Context().Value("jwtexp").(int)
+	jwt := r.Context().Value("token").(*jwtauth.JWTAuth)
+
+	token, err := u.getJwt(newUser.Email, expJwt, jwt)
+
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
 	accessToken := struct {
-		AccessToken string `json:"access_token"`
-	}{
-		AccessToken: token,
-	}
+		Access_Token string `json:"access_token"`
+	}{Access_Token: token}
 
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
+	w.WriteHeader(200)
+	w.Header().Set("Content-Type", "applicaton/json")
 	json.NewEncoder(w).Encode(accessToken)
-}
-
-func (u *UserHandler) Create(w http.ResponseWriter, r *http.Request) {
-	var newUser entity.User
-	err := json.NewDecoder(r.Body).Decode(&newUser)
-	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		return
-	}
-
-	user, err := entity.NewUser(newUser.Nome, newUser.Email, newUser.PhotoUrl)
-	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		return
-	}
-
-	err = user.Validate()
-	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		errorMessage := struct {
-			Message string
-		}{Message: err.Error()}
-		json.NewEncoder(w).Encode(errorMessage)
-		return
-	}
-
-	_, status, err := u.Userdb.GetUserByEmail(user.Email)
-
-	if err != nil {
-		w.WriteHeader(status)
-		errorMessage := struct {
-			Message string
-		}{Message: err.Error()}
-		json.NewEncoder(w).Encode(errorMessage)
-		return
-	}
-
-	if status == 200 {
-		w.WriteHeader(status)
-		errorMessage := struct {
-			Message string
-		}{Message: "Usuáro já existe"}
-		json.NewEncoder(w).Encode(errorMessage)
-		return
-	}
-
-	status, err = u.Userdb.CreateUser(user)
-	if err != nil {
-		w.WriteHeader(status)
-		return
-	}
-
-	w.WriteHeader(status)
 }

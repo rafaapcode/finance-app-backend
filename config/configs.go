@@ -6,18 +6,22 @@ import (
 	"strconv"
 
 	"github.com/go-chi/jwtauth"
+	"golang.org/x/oauth2"
+	"golang.org/x/oauth2/google"
 )
 
 type conf struct {
-	DBHost        string
-	DBPort        string
-	DBUser        string
-	DBPassword    string
-	DBName        string
-	WebServerPort string
-	Jwt_Secret    string
-	Jwt_ExpiresIn int
-	tokenAuth     *jwtauth.JWTAuth
+	DBHost           string
+	DBPort           string
+	DBUser           string
+	DBPassword       string
+	DBName           string
+	WebServerPort    string
+	Jwt_Secret       string
+	Jwt_ExpiresIn    int
+	GOOGLE_CLIENT_ID string
+	GOOGLE_SECRET    string
+	tokenAuth        *jwtauth.JWTAuth
 }
 
 type jwtSecrets struct {
@@ -40,6 +44,8 @@ func loadConfig() conf {
 	}
 	cfg.Jwt_ExpiresIn = expiresIn
 	cfg.tokenAuth = jwtauth.New("HS256", []byte(cfg.Jwt_Secret), nil)
+	cfg.GOOGLE_CLIENT_ID = os.Getenv("GOOGLE_CLIENT_ID")
+	cfg.GOOGLE_SECRET = os.Getenv("GOOGLE_SECRET")
 
 	return cfg
 }
@@ -59,5 +65,16 @@ func GetJwtSecrets() jwtSecrets {
 	return jwtSecrets{
 		TokenAuth:  conf.tokenAuth,
 		Jwtexpires: conf.Jwt_ExpiresIn,
+	}
+}
+
+func OauthConfig() *oauth2.Config {
+	conf := loadConfig()
+	return &oauth2.Config{
+		ClientID:     conf.GOOGLE_CLIENT_ID,
+		ClientSecret: conf.GOOGLE_SECRET,
+		RedirectURL:  "http://localhost:3003/users/auth/callback",
+		Scopes:       []string{"email", "profile"},
+		Endpoint:     google.Endpoint,
 	}
 }

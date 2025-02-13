@@ -34,9 +34,11 @@ func init() {
 func main() {
 	jwtConfig := config.GetJwtSecrets()
 	defer db.Close()
+	googleApp := config.OauthConfig()
+
 	r := chi.NewRouter()
 	usersDb := database.NewUserDb(db)
-	userHandler := handlers.NewUserHandler(usersDb)
+	userHandler := handlers.NewUserHandler(usersDb, googleApp)
 
 	// Middlewares
 	r.Use(middleware.Logger)
@@ -47,8 +49,8 @@ func main() {
 	r.Use(middleware.WithValue("jwtexp", jwtConfig.Jwtexpires))
 
 	r.Route("/users", func(r chi.Router) {
-		r.Post("/token", userHandler.GetJwt)
-		r.Post("/", userHandler.Create)
+		r.Get("/auth", userHandler.Auth)
+		r.Get("/auth/callback", userHandler.CallbackAuth)
 	})
 
 	http.ListenAndServe(config.GetPort(), r)
