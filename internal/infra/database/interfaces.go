@@ -23,7 +23,7 @@ type OutcomeInterface interface {
 	GetOutcomeAboutToExpire(daysToExpire int, userId string) ([]entity.Outcome, int, error)
 	GetOutcomeLessThan(value float64, userId string) ([]entity.Outcome, int, error)
 	GetOutcomeHigherThan(value float64, userId string) ([]entity.Outcome, int, error)
-	DeleteOutcome(id string, userId string) (string, int, error)
+	DeleteOutcome(id string) (string, int, error)
 }
 
 type InvestmentInterface interface {

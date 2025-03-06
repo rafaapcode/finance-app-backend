@@ -46,6 +46,9 @@ func main() {
 	incomeHandler := handlers.NewIncomeHandler(incomeDb, extraIncomeDb)
 	extraHandler := handlers.NewExtraHandler(extraIncomeDb)
 
+	outcomeDb := database.NewOutcomeDb(db)
+	outcomeHanlder := handlers.NewOutcomeHandler(outcomeDb)
+
 	// Middlewares
 	r.Use(middleware.Logger)
 	r.Use(middleware.Recoverer)
@@ -75,6 +78,22 @@ func main() {
 		r.Get("/allofmonth/{userid}/{month}", extraHandler.GetAllExtraIncomeOfMonth)
 		r.Get("/{id}", extraHandler.GetExtraIncomeById)
 		r.Delete("/{id}", extraHandler.DeleteExtraIncome)
+	})
+
+	r.Route("/outcome", func(r chi.Router) {
+		r.Use(jwtauth.Verifier(jwtConfig.TokenAuth))
+		r.Use(jwtauth.Authenticator)
+		r.Post("/", outcomeHanlder.CreateOutcome)
+		r.Get("/{id}", outcomeHanlder.GetOutcomeById)
+		r.Get("/month/{userid}/{month}", outcomeHanlder.GetAllOutcomeOfMonth)
+		r.Get("/allfixed/{userid}", outcomeHanlder.GetAllFixedOutcome)
+		r.Get("/category/{userid}/{category}", outcomeHanlder.GetAllOutcomeByCategory)
+		r.Get("/payment/{userid}/{paymentmethod}", outcomeHanlder.GetAllOutcomeByPaymentMethod)
+		r.Get("/type/{userid}/{type}", outcomeHanlder.GetAllOutcomeByType)
+		r.Get("/aboutexpire/{userid}/{daysToExpire}", outcomeHanlder.GetOutcomeAboutToExpire)
+		r.Get("/less/{userid}/{value}", outcomeHanlder.GetOutcomeLessThan)
+		r.Get("/higher/{userid}/{value}", outcomeHanlder.GetOutcomeHigherThan)
+		r.Delete("/{id}", outcomeHanlder.DeleteOutcome)
 	})
 
 	http.ListenAndServe(config.GetPort(), r)

@@ -149,13 +149,14 @@ func (outHand *OutcomeHandler) GetAllFixedOutcome(w http.ResponseWriter, r *http
 
 func (outHand *OutcomeHandler) GetAllOutcomeByCategory(w http.ResponseWriter, r *http.Request) {
 	userid := chi.URLParam(r, "userid")
+	category := chi.URLParam(r, "category")
 
-	if userid == "" {
+	if userid == "" || category == "" {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	outcomes, status, err := outHand.OutcomeDb.GetAllFixedOutcome(userid)
+	outcomes, status, err := outHand.OutcomeDb.GetAllOutcomeByCategory(category, userid)
 	if err != nil {
 		w.WriteHeader(status)
 		return
@@ -165,6 +166,182 @@ func (outHand *OutcomeHandler) GetAllOutcomeByCategory(w http.ResponseWriter, r 
 		Data []entity.Outcome `json:"data"`
 	}{
 		Data: outcomes,
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(status)
+	json.NewEncoder(w).Encode(&response)
+}
+
+func (outHand *OutcomeHandler) GetAllOutcomeByPaymentMethod(w http.ResponseWriter, r *http.Request) {
+	userid := chi.URLParam(r, "userid")
+	paymentMethod := chi.URLParam(r, "paymentmethod")
+
+	if userid == "" || paymentMethod == "" {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	outcomes, status, err := outHand.OutcomeDb.GetAllOutcomeByPaymentMethod(paymentMethod, userid)
+	if err != nil {
+		w.WriteHeader(status)
+		return
+	}
+
+	response := struct {
+		Data []entity.Outcome `json:"data"`
+	}{
+		Data: outcomes,
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(status)
+	json.NewEncoder(w).Encode(&response)
+}
+
+func (outHand *OutcomeHandler) GetAllOutcomeByType(w http.ResponseWriter, r *http.Request) {
+	userid := chi.URLParam(r, "userid")
+	outcomeType := chi.URLParam(r, "type")
+
+	if userid == "" || outcomeType == "" {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	outcomes, status, err := outHand.OutcomeDb.GetAllOutcomeByType(outcomeType, userid)
+	if err != nil {
+		w.WriteHeader(status)
+		return
+	}
+
+	response := struct {
+		Data []entity.Outcome `json:"data"`
+	}{
+		Data: outcomes,
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(status)
+	json.NewEncoder(w).Encode(&response)
+}
+
+func (outHand *OutcomeHandler) GetOutcomeAboutToExpire(w http.ResponseWriter, r *http.Request) {
+	userid := chi.URLParam(r, "userid")
+	daysToexpire := chi.URLParam(r, "daysToExpire")
+
+	if userid == "" || daysToexpire == "" {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	days, err := strconv.Atoi(daysToexpire)
+
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	outcomes, status, err := outHand.OutcomeDb.GetOutcomeAboutToExpire(days, userid)
+	if err != nil {
+		w.WriteHeader(status)
+		return
+	}
+
+	response := struct {
+		Data []entity.Outcome `json:"data"`
+	}{
+		Data: outcomes,
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(status)
+	json.NewEncoder(w).Encode(&response)
+}
+
+func (outHand *OutcomeHandler) GetOutcomeLessThan(w http.ResponseWriter, r *http.Request) {
+	userid := chi.URLParam(r, "userid")
+	value := chi.URLParam(r, "value")
+
+	if userid == "" || value == "" {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	v, err := strconv.ParseFloat(value, 64)
+
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	outcomes, status, err := outHand.OutcomeDb.GetOutcomeLessThan(v, userid)
+	if err != nil {
+		w.WriteHeader(status)
+		return
+	}
+
+	response := struct {
+		Data []entity.Outcome `json:"data"`
+	}{
+		Data: outcomes,
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(status)
+	json.NewEncoder(w).Encode(&response)
+}
+
+func (outHand *OutcomeHandler) GetOutcomeHigherThan(w http.ResponseWriter, r *http.Request) {
+	userid := chi.URLParam(r, "userid")
+	value := chi.URLParam(r, "value")
+
+	if userid == "" || value == "" {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	v, err := strconv.ParseFloat(value, 64)
+
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	outcomes, status, err := outHand.OutcomeDb.GetOutcomeHigherThan(v, userid)
+	if err != nil {
+		w.WriteHeader(status)
+		return
+	}
+
+	response := struct {
+		Data []entity.Outcome `json:"data"`
+	}{
+		Data: outcomes,
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(status)
+	json.NewEncoder(w).Encode(&response)
+}
+
+func (outHand *OutcomeHandler) DeleteOutcome(w http.ResponseWriter, r *http.Request) {
+	id := chi.URLParam(r, "id")
+
+	if id == "" {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	msg, status, err := outHand.OutcomeDb.DeleteOutcome(id)
+	if err != nil {
+		w.WriteHeader(status)
+		return
+	}
+
+	response := struct {
+		Message string `json:"message"`
+	}{
+		Message: msg,
 	}
 
 	w.Header().Set("Content-Type", "application/json")
