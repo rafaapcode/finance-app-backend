@@ -47,7 +47,10 @@ func main() {
 	extraHandler := handlers.NewExtraHandler(extraIncomeDb)
 
 	outcomeDb := database.NewOutcomeDb(db)
-	outcomeHanlder := handlers.NewOutcomeHandler(outcomeDb)
+	outcomeHandler := handlers.NewOutcomeHandler(outcomeDb)
+
+	goalsDb := database.NewGoalsDB(db)
+	goalHandler := handlers.NewGoalsHandler(goalsDb)
 
 	// Middlewares
 	r.Use(middleware.Logger)
@@ -83,17 +86,26 @@ func main() {
 	r.Route("/outcome", func(r chi.Router) {
 		r.Use(jwtauth.Verifier(jwtConfig.TokenAuth))
 		r.Use(jwtauth.Authenticator)
-		r.Post("/", outcomeHanlder.CreateOutcome)
-		r.Get("/{id}", outcomeHanlder.GetOutcomeById)
-		r.Get("/month/{userid}/{month}", outcomeHanlder.GetAllOutcomeOfMonth)
-		r.Get("/allfixed/{userid}", outcomeHanlder.GetAllFixedOutcome)
-		r.Get("/category/{userid}/{category}", outcomeHanlder.GetAllOutcomeByCategory)
-		r.Get("/payment/{userid}/{paymentmethod}", outcomeHanlder.GetAllOutcomeByPaymentMethod)
-		r.Get("/type/{userid}/{type}", outcomeHanlder.GetAllOutcomeByType)
-		r.Get("/aboutexpire/{userid}/{daysToExpire}", outcomeHanlder.GetOutcomeAboutToExpire)
-		r.Get("/less/{userid}/{value}", outcomeHanlder.GetOutcomeLessThan)
-		r.Get("/higher/{userid}/{value}", outcomeHanlder.GetOutcomeHigherThan)
-		r.Delete("/{id}", outcomeHanlder.DeleteOutcome)
+		r.Post("/", outcomeHandler.CreateOutcome)
+		r.Get("/{id}", outcomeHandler.GetOutcomeById)
+		r.Get("/month/{userid}/{month}", outcomeHandler.GetAllOutcomeOfMonth)
+		r.Get("/allfixed/{userid}", outcomeHandler.GetAllFixedOutcome)
+		r.Get("/category/{userid}/{category}", outcomeHandler.GetAllOutcomeByCategory)
+		r.Get("/payment/{userid}/{paymentmethod}", outcomeHandler.GetAllOutcomeByPaymentMethod)
+		r.Get("/type/{userid}/{type}", outcomeHandler.GetAllOutcomeByType)
+		r.Get("/aboutexpire/{userid}/{daysToExpire}", outcomeHandler.GetOutcomeAboutToExpire)
+		r.Get("/less/{userid}/{value}", outcomeHandler.GetOutcomeLessThan)
+		r.Get("/higher/{userid}/{value}", outcomeHandler.GetOutcomeHigherThan)
+		r.Delete("/{id}", outcomeHandler.DeleteOutcome)
+	})
+
+	r.Route("/goals", func(r chi.Router) {
+		r.Use(jwtauth.Verifier(jwtConfig.TokenAuth))
+		r.Use(jwtauth.Authenticator)
+		r.Post("/", goalHandler.CreateGoals)
+		r.Get("/{userid}", goalHandler.ListAllGoals)
+		r.Patch("/{id}/{percentage}", goalHandler.UpdateGoal)
+		r.Delete("/{id}", goalHandler.DeleteGoal)
 	})
 
 	http.ListenAndServe(config.GetPort(), r)

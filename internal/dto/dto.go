@@ -25,3 +25,9 @@ type CreateOutcomeDto struct {
 	Notification  bool    `json:"notification"`
 	ExpireDate    int     `json:"expireDate`
 }
+
+type CreateGoalDto struct {
+	Category   string  `json:"category"`
+	UserId     string  `json:"userId"`
+	Percentage float64 `json:"percentage"`
+}
