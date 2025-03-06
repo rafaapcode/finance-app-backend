@@ -47,7 +47,7 @@ type IncomeInterface interface {
 }
 
 type ExtraIncomeInterface interface {
-	CreateExtraIncome(income *entity.ExtraIncome) (int, error)
+	CreateExtraIncome(extraincome *entity.ExtraIncome) (int, error)
 	GetExtraIncomeById(id string) (*entity.ExtraIncome, int, error)
 	GetAllExtraIncomeOfMonth(month int, userId string) ([]entity.ExtraIncome, int, error)
 	GetTotalValueOfExtracIncomeOfTheMonth(month int, userId string) (float64, int, error)
