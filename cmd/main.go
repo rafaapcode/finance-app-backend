@@ -44,6 +44,7 @@ func main() {
 	incomeDb := database.NewIncomeDB(db)
 	extraIncomeDb := database.NewExtraIncomeDB(db)
 	incomeHandler := handlers.NewIncomeHandler(incomeDb, extraIncomeDb)
+	extraHandler := handlers.NewExtraHandler(extraIncomeDb)
 
 	// Middlewares
 	r.Use(middleware.Logger)
@@ -65,6 +66,15 @@ func main() {
 		r.Get("/{userid}", incomeHandler.GetTotalIncomeOfUser)
 		r.Delete("/{id}", incomeHandler.DeleteIncomeById)
 		r.Patch("/{userid}/{value}", incomeHandler.UpdateIncome)
+	})
+
+	r.Route("/extraincomes", func(r chi.Router) {
+		r.Use(jwtauth.Verifier(jwtConfig.TokenAuth))
+		r.Use(jwtauth.Authenticator)
+		r.Post("/", extraHandler.CreateExtraIncome)
+		r.Get("/allofmonth/{userid}/{month}", extraHandler.GetAllExtraIncomeOfMonth)
+		r.Get("/{id}", extraHandler.GetExtraIncomeById)
+		r.Delete("/{id}", extraHandler.DeleteExtraIncome)
 	})
 
 	http.ListenAndServe(config.GetPort(), r)
