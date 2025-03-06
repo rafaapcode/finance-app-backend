@@ -41,8 +41,9 @@ type InvestmentInterface interface {
 
 type IncomeInterface interface {
 	CreateIncome(income *entity.Income) (int, error)
-	GetIncomeValueByUserId(userId string) (int, int, error)
+	GetIncomeValueByUserId(userId string) (float64, int, error)
 	DeleteIncome(id string) (int, error)
+	UpdateIncome(userId string, newValue float64) (int, error)
 }
 
 type ExtraIncomeInterface interface {

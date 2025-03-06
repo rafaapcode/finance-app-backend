@@ -84,3 +84,23 @@ func (inc *IncomeDb) DeleteIncome(id string) (int, error) {
 
 	return 200, nil
 }
+
+func (inc *IncomeDb) UpdateIncome(userId string, newValue float64) (int, error) {
+	stmt, err := inc.DB.Prepare("UPDATE income SET value = $1 WHERE userid = $2")
+
+	if err != nil {
+		fmt.Println(err.Error())
+		return 500, err
+	}
+
+	defer stmt.Close()
+
+	_, err = stmt.Exec(newValue, userId)
+
+	if err != nil {
+		fmt.Println(err.Error())
+		return 404, err
+	}
+
+	return 200, nil
+}

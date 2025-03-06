@@ -38,6 +38,22 @@ func TestGetIncomeValueByuserId(t *testing.T) {
 	assert.Equal(t, 4500.00, value)
 }
 
+func TestUpdateIncomeValueByuserId(t *testing.T) {
+	incDb := NewIncomeDB(db)
+
+	status, err := incDb.UpdateIncome("0194dc4c-39cf-7b69-8f16-5ee8daa95aa2", 2000.00)
+
+	assert.NoError(t, err)
+	assert.Equal(t, 200, status)
+
+	value, status, err := incDb.GetIncomeValueByUserId("0194dc4c-39cf-7b69-8f16-5ee8daa95aa2")
+
+	assert.NoError(t, err)
+	assert.Equal(t, 200, status)
+	assert.Equal(t, 2000.00, value)
+
+}
+
 func TestGetIncomeValueWithInvaliduserId(t *testing.T) {
 	incDb := NewIncomeDB(db)
 

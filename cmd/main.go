@@ -6,6 +6,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	"github.com/go-chi/jwtauth"
 	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
 	"github.com/rafaapcode/finance-app-backend/config"
@@ -40,6 +41,10 @@ func main() {
 	usersDb := database.NewUserDb(db)
 	userHandler := handlers.NewUserHandler(usersDb, googleApp)
 
+	incomeDb := database.NewIncomeDB(db)
+	extraIncomeDb := database.NewExtraIncomeDB(db)
+	incomeHandler := handlers.NewIncomeHandler(incomeDb, extraIncomeDb)
+
 	// Middlewares
 	r.Use(middleware.Logger)
 	r.Use(middleware.Recoverer)
@@ -51,6 +56,15 @@ func main() {
 	r.Route("/users", func(r chi.Router) {
 		r.Get("/auth", userHandler.Auth)
 		r.Get("/auth/callback", userHandler.CallbackAuth)
+	})
+
+	r.Route("/incomes", func(r chi.Router) {
+		r.Use(jwtauth.Verifier(jwtConfig.TokenAuth))
+		r.Use(jwtauth.Authenticator)
+		r.Post("/", incomeHandler.CreateIncome)
+		r.Get("/{userid}", incomeHandler.GetTotalIncomeOfUser)
+		r.Delete("/{id}", incomeHandler.DeleteIncomeById)
+		r.Patch("/{userid}/{value}", incomeHandler.UpdateIncome)
 	})
 
 	http.ListenAndServe(config.GetPort(), r)
