@@ -24,13 +24,12 @@ func NewExtraHandler(extraIncomeDb database.ExtraIncomeInterface) *ExtraHandler 
 
 func (extHand *ExtraHandler) CreateExtraIncome(w http.ResponseWriter, r *http.Request) {
 	var extraIncome dto.CreateExtraIncomeDto
-	var msgRes pkg.MessageResponse
+	var msgRes = pkg.NewMessageResponse("")
 
 	err := json.NewDecoder(r.Body).Decode(&extraIncome)
 	if err != nil {
-		msgRes = pkg.MessageResponse{
-			Message: err.Error(),
-		}
+		msgRes.Message = err.Error()
+
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(w).Encode(msgRes)
@@ -40,9 +39,8 @@ func (extHand *ExtraHandler) CreateExtraIncome(w http.ResponseWriter, r *http.Re
 	ext, err := entity.NewExtraIncome(extraIncome.UserId, extraIncome.Category, extraIncome.Value)
 
 	if err != nil {
-		msgRes = pkg.MessageResponse{
-			Message: err.Error(),
-		}
+		msgRes.Message = err.Error()
+
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(w).Encode(msgRes)
@@ -50,9 +48,8 @@ func (extHand *ExtraHandler) CreateExtraIncome(w http.ResponseWriter, r *http.Re
 	}
 	err = ext.Validate()
 	if err != nil {
-		msgRes = pkg.MessageResponse{
-			Message: err.Error(),
-		}
+		msgRes.Message = err.Error()
+
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(w).Encode(msgRes)
@@ -62,18 +59,15 @@ func (extHand *ExtraHandler) CreateExtraIncome(w http.ResponseWriter, r *http.Re
 	status, err := extHand.ExtraIncomeDb.CreateExtraIncome(ext)
 
 	if err != nil {
-		msgRes = pkg.MessageResponse{
-			Message: err.Error(),
-		}
+		msgRes.Message = err.Error()
+
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(status)
 		json.NewEncoder(w).Encode(msgRes)
 		return
 	}
 
-	msgRes = pkg.MessageResponse{
-		Message: "ExtraIncome created successfully !",
-	}
+	msgRes.Message = "ExtraIncome created successfully !"
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
@@ -83,13 +77,11 @@ func (extHand *ExtraHandler) CreateExtraIncome(w http.ResponseWriter, r *http.Re
 func (extHand *ExtraHandler) GetAllExtraIncomeOfMonth(w http.ResponseWriter, r *http.Request) {
 	userid := chi.URLParam(r, "userid")
 	month := chi.URLParam(r, "month")
-	var errMsg pkg.MessageResponse
-	var dataRes pkg.DataResponse
+	var errMsg = pkg.NewMessageResponse("")
 
 	if userid == "" || month == "" {
-		errMsg = pkg.MessageResponse{
-			Message: "UserId and month is required",
-		}
+		errMsg.Message = "UserId and month is required"
+
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(w).Encode(errMsg)
@@ -99,9 +91,8 @@ func (extHand *ExtraHandler) GetAllExtraIncomeOfMonth(w http.ResponseWriter, r *
 	monthvalue, err := strconv.Atoi(month)
 
 	if err != nil {
-		errMsg = pkg.MessageResponse{
-			Message: err.Error(),
-		}
+		errMsg.Message = err.Error()
+
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(w).Encode(errMsg)
@@ -109,9 +100,8 @@ func (extHand *ExtraHandler) GetAllExtraIncomeOfMonth(w http.ResponseWriter, r *
 	}
 
 	if monthvalue <= 0 || monthvalue > 12 {
-		errMsg = pkg.MessageResponse{
-			Message: "Month must be valid",
-		}
+		errMsg.Message = "Month must be valid"
+
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(w).Encode(errMsg)
@@ -121,18 +111,15 @@ func (extHand *ExtraHandler) GetAllExtraIncomeOfMonth(w http.ResponseWriter, r *
 	extraIncomes, status, err := extHand.ExtraIncomeDb.GetAllExtraIncomeOfMonth(monthvalue, userid)
 
 	if err != nil {
-		errMsg = pkg.MessageResponse{
-			Message: err.Error(),
-		}
+		errMsg.Message = err.Error()
+
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(status)
 		json.NewEncoder(w).Encode(errMsg)
 		return
 	}
 
-	dataRes = pkg.DataResponse{
-		Data: extraIncomes,
-	}
+	dataRes := pkg.NewDataResponse(extraIncomes)
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
@@ -141,13 +128,11 @@ func (extHand *ExtraHandler) GetAllExtraIncomeOfMonth(w http.ResponseWriter, r *
 
 func (extHand *ExtraHandler) GetExtraIncomeById(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
-	var errMsg pkg.MessageResponse
-	var dataRes pkg.DataResponse
+	var errMsg = pkg.NewMessageResponse("")
 
 	if id == "" {
-		errMsg = pkg.MessageResponse{
-			Message: "Id is required",
-		}
+		errMsg.Message = "Id is required"
+
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(w).Encode(errMsg)
@@ -157,18 +142,15 @@ func (extHand *ExtraHandler) GetExtraIncomeById(w http.ResponseWriter, r *http.R
 	extraIncome, status, err := extHand.ExtraIncomeDb.GetExtraIncomeById(id)
 
 	if err != nil {
-		errMsg = pkg.MessageResponse{
-			Message: err.Error(),
-		}
+		errMsg.Message = err.Error()
+
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(status)
 		json.NewEncoder(w).Encode(errMsg)
 		return
 	}
 
-	dataRes = pkg.DataResponse{
-		Data: *extraIncome,
-	}
+	dataRes := pkg.NewDataResponse(*extraIncome)
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
@@ -177,12 +159,11 @@ func (extHand *ExtraHandler) GetExtraIncomeById(w http.ResponseWriter, r *http.R
 
 func (extHand *ExtraHandler) DeleteExtraIncome(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
-	var msgRes pkg.MessageResponse
+	var msgRes = pkg.NewMessageResponse("")
 
 	if id == "" {
-		msgRes = pkg.MessageResponse{
-			Message: "Id is required",
-		}
+		msgRes.Message = "Id is required"
+
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(w).Encode(msgRes)
@@ -192,18 +173,15 @@ func (extHand *ExtraHandler) DeleteExtraIncome(w http.ResponseWriter, r *http.Re
 	status, err := extHand.ExtraIncomeDb.DeleteExtraIncome(id)
 
 	if err != nil {
-		msgRes = pkg.MessageResponse{
-			Message: err.Error(),
-		}
+		msgRes.Message = err.Error()
+
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(status)
 		json.NewEncoder(w).Encode(msgRes)
 		return
 	}
 
-	msgRes = pkg.MessageResponse{
-		Message: "Extra income deleted successfully",
-	}
+	msgRes.Message = "Extra income deleted successfully"
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)

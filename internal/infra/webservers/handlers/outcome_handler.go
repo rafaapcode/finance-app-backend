@@ -24,13 +24,11 @@ func NewOutcomeHandler(outcome database.OutcomeInterface) *OutcomeHandler {
 
 func (outHand *OutcomeHandler) CreateOutcome(w http.ResponseWriter, r *http.Request) {
 	var outcome dto.CreateOutcomeDto
-	var res pkg.MessageResponse
+	var res = pkg.NewMessageResponse("")
 
 	err := json.NewDecoder(r.Body).Decode(&outcome)
 	if err != nil {
-		res = pkg.MessageResponse{
-			Message: err.Error(),
-		}
+		res.Message = err.Error()
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(w).Encode(res)
@@ -40,9 +38,7 @@ func (outHand *OutcomeHandler) CreateOutcome(w http.ResponseWriter, r *http.Requ
 	out, err := entity.NewOutcome(outcome.OutcomeType, outcome.Category, outcome.PaymentMethod, outcome.UserId, outcome.Value, outcome.Notification, outcome.ExpireDate)
 
 	if err != nil {
-		res = pkg.MessageResponse{
-			Message: err.Error(),
-		}
+		res.Message = err.Error()
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(w).Encode(res)
@@ -52,9 +48,7 @@ func (outHand *OutcomeHandler) CreateOutcome(w http.ResponseWriter, r *http.Requ
 	err = out.Validate()
 
 	if err != nil {
-		res = pkg.MessageResponse{
-			Message: err.Error(),
-		}
+		res.Message = err.Error()
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(w).Encode(res)
@@ -63,18 +57,14 @@ func (outHand *OutcomeHandler) CreateOutcome(w http.ResponseWriter, r *http.Requ
 
 	status, err := outHand.OutcomeDb.CreateOutcome(out)
 	if err != nil {
-		res = pkg.MessageResponse{
-			Message: err.Error(),
-		}
+		res.Message = err.Error()
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(status)
 		json.NewEncoder(w).Encode(res)
 		return
 	}
 
-	res = pkg.MessageResponse{
-		Message: "Outcome created successfully !",
-	}
+	res.Message = "Outcome created successfully !"
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
@@ -83,13 +73,10 @@ func (outHand *OutcomeHandler) CreateOutcome(w http.ResponseWriter, r *http.Requ
 
 func (outHand *OutcomeHandler) GetOutcomeById(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
-	var errMsg pkg.MessageResponse
-	var messageData pkg.DataResponse
+	var errMsg = pkg.NewMessageResponse("")
 
 	if id == "" {
-		errMsg = pkg.MessageResponse{
-			Message: "Id is required !",
-		}
+		errMsg.Message = "Id is required !"
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(w).Encode(errMsg)
@@ -98,18 +85,14 @@ func (outHand *OutcomeHandler) GetOutcomeById(w http.ResponseWriter, r *http.Req
 
 	outcome, status, err := outHand.OutcomeDb.GetOutcomeById(id)
 	if err != nil {
-		errMsg = pkg.MessageResponse{
-			Message: err.Error(),
-		}
+		errMsg.Message = err.Error()
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(status)
 		json.NewEncoder(w).Encode(errMsg)
 		return
 	}
 
-	messageData = pkg.DataResponse{
-		Data: *outcome,
-	}
+	messageData := pkg.NewDataResponse(*outcome)
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
@@ -119,13 +102,10 @@ func (outHand *OutcomeHandler) GetOutcomeById(w http.ResponseWriter, r *http.Req
 func (outHand *OutcomeHandler) GetAllOutcomeOfMonth(w http.ResponseWriter, r *http.Request) {
 	userid := chi.URLParam(r, "userid")
 	month := chi.URLParam(r, "month")
-	var errMsg pkg.MessageResponse
-	var messageData pkg.DataResponse
+	var errMsg = pkg.NewMessageResponse("")
 
 	if userid == "" || month == "" {
-		errMsg = pkg.MessageResponse{
-			Message: "Id and Month is required !",
-		}
+		errMsg.Message = "Id and Month is required !"
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(w).Encode(errMsg)
@@ -135,9 +115,7 @@ func (outHand *OutcomeHandler) GetAllOutcomeOfMonth(w http.ResponseWriter, r *ht
 	monthvalue, err := strconv.Atoi(month)
 
 	if err != nil {
-		errMsg = pkg.MessageResponse{
-			Message: err.Error(),
-		}
+		errMsg.Message = err.Error()
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(w).Encode(errMsg)
@@ -145,9 +123,7 @@ func (outHand *OutcomeHandler) GetAllOutcomeOfMonth(w http.ResponseWriter, r *ht
 	}
 
 	if monthvalue <= 0 || monthvalue > 12 {
-		errMsg = pkg.MessageResponse{
-			Message: "Must be a valid month",
-		}
+		errMsg.Message = "Must be a valid month"
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(w).Encode(errMsg)
@@ -156,18 +132,15 @@ func (outHand *OutcomeHandler) GetAllOutcomeOfMonth(w http.ResponseWriter, r *ht
 
 	outcomes, status, err := outHand.OutcomeDb.GetAllOutcomeOfMonth(monthvalue, userid)
 	if err != nil {
-		errMsg = pkg.MessageResponse{
-			Message: err.Error(),
-		}
+		errMsg.Message = err.Error()
+
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(status)
 		json.NewEncoder(w).Encode(errMsg)
 		return
 	}
 
-	messageData = pkg.DataResponse{
-		Data: outcomes,
-	}
+	messageData := pkg.NewDataResponse(outcomes)
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
@@ -176,13 +149,11 @@ func (outHand *OutcomeHandler) GetAllOutcomeOfMonth(w http.ResponseWriter, r *ht
 
 func (outHand *OutcomeHandler) GetAllFixedOutcome(w http.ResponseWriter, r *http.Request) {
 	userid := chi.URLParam(r, "userid")
-	var errMsg pkg.MessageResponse
-	var messageData pkg.DataResponse
+	var errMsg = pkg.NewMessageResponse("")
 
 	if userid == "" {
-		errMsg = pkg.MessageResponse{
-			Message: "UserId is required !",
-		}
+		errMsg.Message = "UserId is required !"
+
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(w).Encode(errMsg)
@@ -191,18 +162,15 @@ func (outHand *OutcomeHandler) GetAllFixedOutcome(w http.ResponseWriter, r *http
 
 	outcomes, status, err := outHand.OutcomeDb.GetAllFixedOutcome(userid)
 	if err != nil {
-		errMsg = pkg.MessageResponse{
-			Message: err.Error(),
-		}
+		errMsg.Message = err.Error()
+
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(status)
 		json.NewEncoder(w).Encode(errMsg)
 		return
 	}
 
-	messageData = pkg.DataResponse{
-		Data: outcomes,
-	}
+	messageData := pkg.NewDataResponse(outcomes)
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
@@ -212,13 +180,10 @@ func (outHand *OutcomeHandler) GetAllFixedOutcome(w http.ResponseWriter, r *http
 func (outHand *OutcomeHandler) GetAllOutcomeByCategory(w http.ResponseWriter, r *http.Request) {
 	userid := chi.URLParam(r, "userid")
 	category := chi.URLParam(r, "category")
-	var errMsg pkg.MessageResponse
-	var messageData pkg.DataResponse
+	errMsg := pkg.NewMessageResponse("")
 
 	if userid == "" || category == "" {
-		errMsg = pkg.MessageResponse{
-			Message: "UserId and category is required !",
-		}
+		errMsg.Message = "UserId and category is required !"
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(w).Encode(errMsg)
@@ -227,18 +192,14 @@ func (outHand *OutcomeHandler) GetAllOutcomeByCategory(w http.ResponseWriter, r 
 
 	outcomes, status, err := outHand.OutcomeDb.GetAllOutcomeByCategory(category, userid)
 	if err != nil {
-		errMsg = pkg.MessageResponse{
-			Message: err.Error(),
-		}
+		errMsg.Message = err.Error()
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(status)
 		json.NewEncoder(w).Encode(errMsg)
 		return
 	}
 
-	messageData = pkg.DataResponse{
-		Data: outcomes,
-	}
+	messageData := pkg.NewDataResponse(outcomes)
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
@@ -248,13 +209,11 @@ func (outHand *OutcomeHandler) GetAllOutcomeByCategory(w http.ResponseWriter, r 
 func (outHand *OutcomeHandler) GetAllOutcomeByPaymentMethod(w http.ResponseWriter, r *http.Request) {
 	userid := chi.URLParam(r, "userid")
 	paymentMethod := chi.URLParam(r, "paymentmethod")
-	var errMsg pkg.MessageResponse
-	var messageData pkg.DataResponse
+	var errMsg = pkg.NewMessageResponse("")
 
 	if userid == "" || paymentMethod == "" {
-		errMsg = pkg.MessageResponse{
-			Message: "UserId and PaymentMethod is required !",
-		}
+		errMsg.Message = "UserId and PaymentMethod is required !"
+
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(w).Encode(errMsg)
@@ -263,18 +222,14 @@ func (outHand *OutcomeHandler) GetAllOutcomeByPaymentMethod(w http.ResponseWrite
 
 	outcomes, status, err := outHand.OutcomeDb.GetAllOutcomeByPaymentMethod(paymentMethod, userid)
 	if err != nil {
-		errMsg = pkg.MessageResponse{
-			Message: err.Error(),
-		}
+		errMsg.Message = err.Error()
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(status)
 		json.NewEncoder(w).Encode(errMsg)
 		return
 	}
 
-	messageData = pkg.DataResponse{
-		Data: outcomes,
-	}
+	messageData := pkg.NewDataResponse(outcomes)
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
@@ -284,13 +239,11 @@ func (outHand *OutcomeHandler) GetAllOutcomeByPaymentMethod(w http.ResponseWrite
 func (outHand *OutcomeHandler) GetAllOutcomeByType(w http.ResponseWriter, r *http.Request) {
 	userid := chi.URLParam(r, "userid")
 	outcomeType := chi.URLParam(r, "type")
-	var errMsg pkg.MessageResponse
-	var messageData pkg.DataResponse
+	var errMsg = pkg.NewMessageResponse("")
 
 	if userid == "" || outcomeType == "" {
-		errMsg = pkg.MessageResponse{
-			Message: "UserId and OutcomeType is required !",
-		}
+		errMsg.Message = "UserId and OutcomeType is required !"
+
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(w).Encode(errMsg)
@@ -299,18 +252,15 @@ func (outHand *OutcomeHandler) GetAllOutcomeByType(w http.ResponseWriter, r *htt
 
 	outcomes, status, err := outHand.OutcomeDb.GetAllOutcomeByType(outcomeType, userid)
 	if err != nil {
-		errMsg = pkg.MessageResponse{
-			Message: err.Error(),
-		}
+		errMsg.Message = err.Error()
+
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(status)
 		json.NewEncoder(w).Encode(errMsg)
 		return
 	}
 
-	messageData = pkg.DataResponse{
-		Data: outcomes,
-	}
+	messageData := pkg.NewDataResponse(outcomes)
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
@@ -320,13 +270,11 @@ func (outHand *OutcomeHandler) GetAllOutcomeByType(w http.ResponseWriter, r *htt
 func (outHand *OutcomeHandler) GetOutcomeAboutToExpire(w http.ResponseWriter, r *http.Request) {
 	userid := chi.URLParam(r, "userid")
 	daysToexpire := chi.URLParam(r, "daysToExpire")
-	var errMsg pkg.MessageResponse
-	var messageData pkg.DataResponse
+	var errMsg = pkg.NewMessageResponse("")
 
 	if userid == "" || daysToexpire == "" {
-		errMsg = pkg.MessageResponse{
-			Message: "UserId and DaysToExpire is required !",
-		}
+		errMsg.Message = "UserId and DaysToExpire is required !"
+
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(w).Encode(errMsg)
@@ -336,9 +284,8 @@ func (outHand *OutcomeHandler) GetOutcomeAboutToExpire(w http.ResponseWriter, r 
 	days, err := strconv.Atoi(daysToexpire)
 
 	if err != nil {
-		errMsg = pkg.MessageResponse{
-			Message: err.Error(),
-		}
+		errMsg.Message = err.Error()
+
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(w).Encode(errMsg)
@@ -347,18 +294,15 @@ func (outHand *OutcomeHandler) GetOutcomeAboutToExpire(w http.ResponseWriter, r 
 
 	outcomes, status, err := outHand.OutcomeDb.GetOutcomeAboutToExpire(days, userid)
 	if err != nil {
-		errMsg = pkg.MessageResponse{
-			Message: err.Error(),
-		}
+		errMsg.Message = err.Error()
+
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(status)
 		json.NewEncoder(w).Encode(errMsg)
 		return
 	}
 
-	messageData = pkg.DataResponse{
-		Data: outcomes,
-	}
+	messageData := pkg.NewDataResponse(outcomes)
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
@@ -368,13 +312,11 @@ func (outHand *OutcomeHandler) GetOutcomeAboutToExpire(w http.ResponseWriter, r 
 func (outHand *OutcomeHandler) GetOutcomeLessThan(w http.ResponseWriter, r *http.Request) {
 	userid := chi.URLParam(r, "userid")
 	value := chi.URLParam(r, "value")
-	var errMsg pkg.MessageResponse
-	var messageData pkg.DataResponse
+	var errMsg = pkg.NewMessageResponse("")
 
 	if userid == "" || value == "" {
-		errMsg = pkg.MessageResponse{
-			Message: "UserId and value is required !",
-		}
+		errMsg.Message = "UserId and value is required !"
+
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(w).Encode(errMsg)
@@ -384,9 +326,8 @@ func (outHand *OutcomeHandler) GetOutcomeLessThan(w http.ResponseWriter, r *http
 	v, err := strconv.ParseFloat(value, 64)
 
 	if err != nil {
-		errMsg = pkg.MessageResponse{
-			Message: err.Error(),
-		}
+		errMsg.Message = err.Error()
+
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(w).Encode(errMsg)
@@ -395,18 +336,15 @@ func (outHand *OutcomeHandler) GetOutcomeLessThan(w http.ResponseWriter, r *http
 
 	outcomes, status, err := outHand.OutcomeDb.GetOutcomeLessThan(v, userid)
 	if err != nil {
-		errMsg = pkg.MessageResponse{
-			Message: err.Error(),
-		}
+		errMsg.Message = err.Error()
+
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(status)
 		json.NewEncoder(w).Encode(errMsg)
 		return
 	}
 
-	messageData = pkg.DataResponse{
-		Data: outcomes,
-	}
+	messageData := pkg.NewDataResponse(outcomes)
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
@@ -416,13 +354,11 @@ func (outHand *OutcomeHandler) GetOutcomeLessThan(w http.ResponseWriter, r *http
 func (outHand *OutcomeHandler) GetOutcomeHigherThan(w http.ResponseWriter, r *http.Request) {
 	userid := chi.URLParam(r, "userid")
 	value := chi.URLParam(r, "value")
-	var errMsg pkg.MessageResponse
-	var messageData pkg.DataResponse
+	var errMsg = pkg.NewMessageResponse("")
 
 	if userid == "" || value == "" {
-		errMsg = pkg.MessageResponse{
-			Message: "UserId and value is required",
-		}
+		errMsg.Message = "UserId and value is required"
+
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(w).Encode(errMsg)
@@ -432,9 +368,8 @@ func (outHand *OutcomeHandler) GetOutcomeHigherThan(w http.ResponseWriter, r *ht
 	v, err := strconv.ParseFloat(value, 64)
 
 	if err != nil {
-		errMsg = pkg.MessageResponse{
-			Message: err.Error(),
-		}
+		errMsg.Message = err.Error()
+
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(w).Encode(errMsg)
@@ -443,18 +378,15 @@ func (outHand *OutcomeHandler) GetOutcomeHigherThan(w http.ResponseWriter, r *ht
 
 	outcomes, status, err := outHand.OutcomeDb.GetOutcomeHigherThan(v, userid)
 	if err != nil {
-		errMsg = pkg.MessageResponse{
-			Message: err.Error(),
-		}
+		errMsg.Message = err.Error()
+
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(status)
 		json.NewEncoder(w).Encode(errMsg)
 		return
 	}
 
-	messageData = pkg.DataResponse{
-		Data: outcomes,
-	}
+	messageData := pkg.NewDataResponse(outcomes)
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
@@ -463,12 +395,11 @@ func (outHand *OutcomeHandler) GetOutcomeHigherThan(w http.ResponseWriter, r *ht
 
 func (outHand *OutcomeHandler) DeleteOutcome(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
-	var msgRes pkg.MessageResponse
+	var msgRes = pkg.NewMessageResponse("")
 
 	if id == "" {
-		msgRes = pkg.MessageResponse{
-			Message: "Id is required",
-		}
+		msgRes.Message = "Id is required"
+
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(w).Encode(msgRes)
@@ -477,18 +408,15 @@ func (outHand *OutcomeHandler) DeleteOutcome(w http.ResponseWriter, r *http.Requ
 
 	msg, status, err := outHand.OutcomeDb.DeleteOutcome(id)
 	if err != nil {
-		msgRes = pkg.MessageResponse{
-			Message: msg,
-		}
+		msgRes.Message = msg
+
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(status)
 		json.NewEncoder(w).Encode(msgRes)
 		return
 	}
 
-	msgRes = pkg.MessageResponse{
-		Message: msg,
-	}
+	msgRes.Message = msg
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)

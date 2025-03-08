@@ -27,13 +27,12 @@ func NewIncomeHandler(income database.IncomeInterface, extraIncomeDb database.Ex
 
 func (incHand *IncomeHandler) CreateIncome(w http.ResponseWriter, r *http.Request) {
 	var income dto.CreateIncomeDto
-	var msgRes pkg.MessageResponse
+	var msgRes = pkg.NewMessageResponse("")
 
 	err := json.NewDecoder(r.Body).Decode(&income)
 	if err != nil {
-		msgRes = pkg.MessageResponse{
-			Message: err.Error(),
-		}
+		msgRes.Message = err.Error()
+
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(w).Encode(msgRes)
@@ -43,9 +42,8 @@ func (incHand *IncomeHandler) CreateIncome(w http.ResponseWriter, r *http.Reques
 	inc, err := entity.NewIncome(income.UserId, income.Value)
 
 	if err != nil {
-		msgRes = pkg.MessageResponse{
-			Message: err.Error(),
-		}
+		msgRes.Message = err.Error()
+
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(w).Encode(msgRes)
@@ -53,9 +51,8 @@ func (incHand *IncomeHandler) CreateIncome(w http.ResponseWriter, r *http.Reques
 	}
 	err = inc.Validate()
 	if err != nil {
-		msgRes = pkg.MessageResponse{
-			Message: err.Error(),
-		}
+		msgRes.Message = err.Error()
+
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(w).Encode(msgRes)
@@ -64,18 +61,15 @@ func (incHand *IncomeHandler) CreateIncome(w http.ResponseWriter, r *http.Reques
 
 	status, err := incHand.IncomeDb.CreateIncome(inc)
 	if err != nil {
-		msgRes = pkg.MessageResponse{
-			Message: err.Error(),
-		}
+		msgRes.Message = err.Error()
+
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(status)
 		json.NewEncoder(w).Encode(msgRes)
 		return
 	}
 
-	msgRes = pkg.MessageResponse{
-		Message: "Income created successfully !",
-	}
+	msgRes.Message = "Income created successfully !"
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
@@ -84,14 +78,12 @@ func (incHand *IncomeHandler) CreateIncome(w http.ResponseWriter, r *http.Reques
 
 func (incHand *IncomeHandler) GetTotalIncomeOfUser(w http.ResponseWriter, r *http.Request) {
 	userId := chi.URLParam(r, "userid")
-	var msgRes pkg.MessageResponse
-	var msgData pkg.DataResponse
+	var msgRes = pkg.NewMessageResponse("")
 
 	var total float64
 	if userId == "" {
-		msgRes = pkg.MessageResponse{
-			Message: "UserId is required",
-		}
+		msgRes.Message = "UserId is required"
+
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(w).Encode(msgRes)
@@ -101,9 +93,8 @@ func (incHand *IncomeHandler) GetTotalIncomeOfUser(w http.ResponseWriter, r *htt
 	incomeValue, status, err := incHand.IncomeDb.GetIncomeValueByUserId(userId)
 
 	if err != nil {
-		msgRes = pkg.MessageResponse{
-			Message: err.Error(),
-		}
+		msgRes.Message = err.Error()
+
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(status)
 		json.NewEncoder(w).Encode(msgRes)
@@ -116,9 +107,8 @@ func (incHand *IncomeHandler) GetTotalIncomeOfUser(w http.ResponseWriter, r *htt
 	extraIncomeValue, status, err := incHand.ExtraIncomeDb.GetTotalValueOfExtracIncomeOfTheMonth(int(currentMonth.Month()), userId)
 
 	if status == 500 {
-		msgRes = pkg.MessageResponse{
-			Message: err.Error(),
-		}
+		msgRes.Message = err.Error()
+
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(status)
 		json.NewEncoder(w).Encode(msgRes)
@@ -129,9 +119,7 @@ func (incHand *IncomeHandler) GetTotalIncomeOfUser(w http.ResponseWriter, r *htt
 		total += extraIncomeValue
 	}
 
-	msgData = pkg.DataResponse{
-		Data: total,
-	}
+	msgData := pkg.NewDataResponse(total)
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
@@ -140,12 +128,11 @@ func (incHand *IncomeHandler) GetTotalIncomeOfUser(w http.ResponseWriter, r *htt
 
 func (incHand *IncomeHandler) DeleteIncomeById(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
-	var msgRes pkg.MessageResponse
+	var msgRes = pkg.NewMessageResponse("")
 
 	if id == "" {
-		msgRes = pkg.MessageResponse{
-			Message: "Id is required",
-		}
+		msgRes.Message = "Id is required"
+
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(w).Encode(msgRes)
@@ -155,18 +142,15 @@ func (incHand *IncomeHandler) DeleteIncomeById(w http.ResponseWriter, r *http.Re
 	status, err := incHand.IncomeDb.DeleteIncome(id)
 
 	if err != nil {
-		msgRes = pkg.MessageResponse{
-			Message: err.Error(),
-		}
+		msgRes.Message = err.Error()
+
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(status)
 		json.NewEncoder(w).Encode(msgRes)
 		return
 	}
 
-	msgRes = pkg.MessageResponse{
-		Message: "Income deleted successfully !",
-	}
+	msgRes.Message = "Income deleted successfully !"
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
@@ -176,12 +160,11 @@ func (incHand *IncomeHandler) DeleteIncomeById(w http.ResponseWriter, r *http.Re
 func (incHand *IncomeHandler) UpdateIncome(w http.ResponseWriter, r *http.Request) {
 	userid := chi.URLParam(r, "userid")
 	newValue := chi.URLParam(r, "value")
-	var msgRes pkg.MessageResponse
+	var msgRes = pkg.NewMessageResponse("")
 
 	if userid == "" {
-		msgRes = pkg.MessageResponse{
-			Message: "UserId is required",
-		}
+		msgRes.Message = "UserId is required"
+
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(w).Encode(msgRes)
@@ -189,9 +172,8 @@ func (incHand *IncomeHandler) UpdateIncome(w http.ResponseWriter, r *http.Reques
 	}
 
 	if newValue == "" {
-		msgRes = pkg.MessageResponse{
-			Message: "Value is required",
-		}
+		msgRes.Message = "Value is required"
+
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(w).Encode(msgRes)
@@ -201,9 +183,8 @@ func (incHand *IncomeHandler) UpdateIncome(w http.ResponseWriter, r *http.Reques
 	valueParsed, err := strconv.ParseFloat(newValue, 64)
 
 	if err == nil {
-		msgRes = pkg.MessageResponse{
-			Message: err.Error(),
-		}
+		msgRes.Message = err.Error()
+
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(w).Encode(msgRes)
@@ -213,18 +194,15 @@ func (incHand *IncomeHandler) UpdateIncome(w http.ResponseWriter, r *http.Reques
 	status, err := incHand.IncomeDb.UpdateIncome(userid, valueParsed)
 
 	if err != nil {
-		msgRes = pkg.MessageResponse{
-			Message: err.Error(),
-		}
+		msgRes.Message = err.Error()
+
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(status)
 		json.NewEncoder(w).Encode(msgRes)
 		return
 	}
 
-	msgRes = pkg.MessageResponse{
-		Message: "Income deleted successfully !",
-	}
+	msgRes.Message = "Income deleted successfully !"
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
