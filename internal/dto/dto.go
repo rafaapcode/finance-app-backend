@@ -31,3 +31,16 @@ type CreateGoalDto struct {
 	UserId     string  `json:"userId"`
 	Percentage float64 `json:"percentage"`
 }
+
+type CreateInvestmentDto struct {
+	UserId    string  `json:"userId"`
+	Category  string  `json:"category"`
+	Quantity  int     `json:"quantity"`
+	StockCode string  `json:"stockCode"`
+	BuyPrice  float64 `json:"buyPrice"`
+}
+
+type UpdateSellInvestmentDto struct {
+	Quantity  int     `json:"quantity"`
+	SellPrice float64 `json:"buyPrice"`
+}

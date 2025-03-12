@@ -28,11 +28,15 @@ type OutcomeInterface interface {
 
 type InvestmentInterface interface {
 	CreateInvestment(invest *entity.Investment) (int, error)
-	GetTotalOfInvestment(userid string) (int, int, error)
-	GetAllOfInvestment(pageNumber int, sort, userid string) ([]entity.Investment, int, error)
+	GetTotalOfInvestment(userid string) (float64, int, error)
+	GetAllOfInvestment(userid string) ([]entity.Investment, int, error)
+	GetNextPageAllOfInvestment(lastInvId, userid string) ([]entity.Investment, int, error)
+	GetPreviousPageAllOfInvestment(firstInvId, userid string) ([]entity.Investment, int, error)
 	GetInvestmentByName(name, userid string) (entity.Investment, int, error)
 	GetInvestmentById(id string) (entity.Investment, int, error)
-	GetInvestmentByCategory(pageNumber int, category, userid string) ([]entity.Investment, int, error)
+	GetInvestmentByCategory(category, userid string) ([]entity.Investment, int, error)
+	GetNextPageInvestmentByCategory(category, userid, lastInvId string) ([]entity.Investment, int, error)
+	GetPreviousPageInvestmentByCategory(category, userid, firstInvId string) ([]entity.Investment, int, error)
 	UpdateInvestment(newData *entity.Investment) (int, error)
 	GetAssetGrowth(userid string) (entity.Metrics, int, error)
 	GetPortfolioDiversification(userid string) (entity.Metrics, int, error)

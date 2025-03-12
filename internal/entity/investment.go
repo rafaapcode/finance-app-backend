@@ -50,6 +50,45 @@ func NewInvestment(category, userId, stockCode string, totalQuantity int, buyPri
 	}, nil
 }
 
+func NewUpdateSellInvestment(inv *Investment, sellPrice, profit float64, newQuantity int, newpercentage float32) *Investment {
+
+	return &Investment{
+		Id:            inv.Id,
+		Category:      inv.Category,
+		Userid:        inv.Userid,
+		StockCode:     inv.StockCode,
+		TotalQuantity: newQuantity,
+		BuyPrice:      inv.BuyPrice,
+		SellPrice:     sellPrice,
+		Value:         inv.Value,
+		Profit:        profit,
+		Percentage:    newpercentage,
+		BuyDate:       inv.BuyDate,
+		SellDate:      time.Now(),
+		CreatedAt:     inv.CreatedAt,
+	}
+}
+
+func NewUpdateSupplyInvestment(inv *Investment, buyPrice, newValue float64, newQuantity int, newpercentage float32) *Investment {
+
+	return &Investment{
+		Id:             inv.Id,
+		Category:       inv.Category,
+		Userid:         inv.Userid,
+		StockCode:      inv.StockCode,
+		TotalQuantity:  newQuantity,
+		BuyPrice:       buyPrice,
+		SellPrice:      inv.SellPrice,
+		Value:          newValue,
+		Profit:         inv.Profit,
+		Percentage:     newpercentage,
+		BuyDate:        inv.BuyDate,
+		SellDate:       inv.SellDate,
+		LastSupplyDate: time.Now(),
+		CreatedAt:      inv.CreatedAt,
+	}
+}
+
 func (inv *Investment) Validate() error {
 	if inv.Id.String() == "" {
 		return ErrIdIdRequired

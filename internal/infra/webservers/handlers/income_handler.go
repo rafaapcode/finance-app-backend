@@ -182,7 +182,7 @@ func (incHand *IncomeHandler) UpdateIncome(w http.ResponseWriter, r *http.Reques
 
 	valueParsed, err := strconv.ParseFloat(newValue, 64)
 
-	if err == nil {
+	if err != nil {
 		msgRes.Message = err.Error()
 
 		w.Header().Set("Content-Type", "application/json")
