@@ -42,5 +42,10 @@ type CreateInvestmentDto struct {
 
 type UpdateSellInvestmentDto struct {
 	Quantity  int     `json:"quantity"`
-	SellPrice float64 `json:"buyPrice"`
+	SellPrice float64 `json:"sellPrice"`
+}
+
+type UpdateSupplyInvestmentDto struct {
+	Quantity    int     `json:"quantity"`
+	SupplyPrice float64 `json:"supplyPrice"`
 }

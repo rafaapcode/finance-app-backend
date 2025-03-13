@@ -83,7 +83,6 @@ func NewUpdateSupplyInvestment(inv *Investment, buyPrice, newValue float64, newQ
 		Profit:         inv.Profit,
 		Percentage:     newpercentage,
 		BuyDate:        inv.BuyDate,
-		SellDate:       inv.SellDate,
 		LastSupplyDate: time.Now(),
 		CreatedAt:      inv.CreatedAt,
 	}

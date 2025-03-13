@@ -609,3 +609,105 @@ func (invDb *InvestmentHandler) UpdateSellInvesment(w http.ResponseWriter, r *ht
 	w.WriteHeader(200)
 	json.NewEncoder(w).Encode(msgRes)
 }
+
+func (invDb *InvestmentHandler) UpdateSupplyInvesment(w http.ResponseWriter, r *http.Request) {
+	var msgRes = pkg.NewMessageResponse("")
+	id := chi.URLParam(r, "id")
+
+	if id == "" {
+		msgRes.Message = "InvestmentId is required"
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(msgRes)
+		return
+	}
+
+	var updateSupplyInv dto.UpdateSupplyInvestmentDto
+
+	if err := json.NewDecoder(r.Body).Decode(&updateSupplyInv); err != nil {
+		msgRes.Message = err.Error()
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(msgRes)
+		return
+	}
+
+	inv, status, err := invDb.InvestmentDb.GetInvestmentById(id)
+
+	if err != nil {
+		msgRes.Message = err.Error()
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(status)
+		json.NewEncoder(w).Encode(msgRes)
+		return
+	}
+
+	totalValue, status, err := invDb.InvestmentDb.GetTotalOfInvestment(inv.Userid)
+	if err != nil {
+		msgRes.Message = err.Error()
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(status)
+		json.NewEncoder(w).Encode(msgRes)
+		return
+	}
+
+	var newQuantity = inv.TotalQuantity + updateSupplyInv.Quantity
+	var totalSuplied = updateSupplyInv.SupplyPrice * float64(updateSupplyInv.Quantity)
+	var newTotalInvestedValue = totalValue + totalSuplied
+	var percentage = (totalSuplied / newTotalInvestedValue)
+
+	invEntity := entity.NewUpdateSupplyInvestment(&inv, updateSupplyInv.SupplyPrice, newTotalInvestedValue, newQuantity, float32(percentage))
+
+	err = invEntity.Validate()
+
+	if err != nil {
+		msgRes.Message = err.Error()
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(msgRes)
+		return
+	}
+
+	status, err = invDb.InvestmentDb.UpdateInvestment(invEntity)
+
+	if err != nil {
+		msgRes.Message = err.Error()
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(status)
+		json.NewEncoder(w).Encode(msgRes)
+		return
+	}
+
+	supplyEntity, err := entity.NewSupplyOperation(invEntity.Id.String(), invEntity.Category, invEntity.StockCode, updateSupplyInv.Quantity, updateSupplyInv.SupplyPrice, totalSuplied, time.Now())
+
+	if err != nil {
+		msgRes.Message = err.Error()
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(status)
+		json.NewEncoder(w).Encode(msgRes)
+		return
+	}
+
+	err = supplyEntity.Validate()
+	if err != nil {
+		msgRes.Message = err.Error()
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(msgRes)
+		return
+	}
+
+	status, err = invDb.SupplyOpDb.CreateSupplyOperation(supplyEntity)
+	if err != nil {
+		msgRes.Message = err.Error()
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(status)
+		json.NewEncoder(w).Encode(msgRes)
+		return
+	}
+
+	msgRes.Message = "Investment suplied with sucesss"
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+	json.NewEncoder(w).Encode(msgRes)
+}
