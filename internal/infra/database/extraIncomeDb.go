@@ -2,6 +2,7 @@ package database
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 
 	"github.com/rafaapcode/finance-app-backend/internal/entity"
@@ -119,32 +120,20 @@ func (extInc *ExtraIncomeDb) GetAllExtraIncomeOfMonth(month int, userId string) 
 }
 
 func (extInc *ExtraIncomeDb) GetTotalValueOfExtracIncomeOfTheMonth(month int, userId string) (float64, int, error) {
-	var total float64
-	stmt, err := extInc.DB.Prepare("SELECT sum(value) FROM extraincome WHERE date_part('month', buydate) = $1 AND userid = $2")
+	var total sql.NullFloat64
+	stmt, err := extInc.DB.Prepare("SELECT sum(value) FROM extraincome WHERE date_part('month', date) = $1 AND userid = $2")
 
 	if err != nil {
 		return 0.0, 500, err
 	}
 	defer stmt.Close()
 
-	rows, err := stmt.Query(month, userId)
+	err = stmt.QueryRow(month, userId).Scan(&total)
 
 	if err != nil {
-		fmt.Println(err.Error())
-		return 0.0, 404, err
+		return 0.0, 404, errors.New("user not found")
 	}
 
-	for rows.Next() {
-		var value float64
-
-		err = rows.Scan(&value)
-
-		if err != nil {
-			return 0.0, 500, nil
-		}
-
-		total += value
-	}
-
-	return total, 200, nil
+	fmt.Println("res", total)
+	return total.Float64, 200, nil
 }

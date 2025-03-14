@@ -28,6 +28,7 @@ func NewIncomeHandler(income database.IncomeInterface, extraIncomeDb database.Ex
 func (incHand *IncomeHandler) CreateIncome(w http.ResponseWriter, r *http.Request) {
 	var income dto.CreateIncomeDto
 	var msgRes = pkg.NewMessageResponse("")
+	userId := chi.URLParam(r, "userid")
 
 	err := json.NewDecoder(r.Body).Decode(&income)
 	if err != nil {
@@ -39,7 +40,7 @@ func (incHand *IncomeHandler) CreateIncome(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	inc, err := entity.NewIncome(income.UserId, income.Value)
+	inc, err := entity.NewIncome(userId, income.Value)
 
 	if err != nil {
 		msgRes.Message = err.Error()

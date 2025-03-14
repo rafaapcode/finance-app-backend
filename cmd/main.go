@@ -52,6 +52,12 @@ func main() {
 	goalsDb := database.NewGoalsDB(db)
 	goalHandler := handlers.NewGoalsHandler(goalsDb)
 
+	investmentDb := database.NewInvestmentDB(db)
+	buyOp := database.NewBuyOperationDB(db)
+	sellOp := database.NewSellOperationDB(db)
+	supply := database.NewSupplyOperationDB(db)
+	investmentHandler := handlers.NewInvestmentHandler(investmentDb, buyOp, sellOp, supply)
+
 	// Middlewares
 	r.Use(middleware.Logger)
 	r.Use(middleware.Recoverer)
@@ -68,7 +74,7 @@ func main() {
 	r.Route("/incomes", func(r chi.Router) {
 		r.Use(jwtauth.Verifier(jwtConfig.TokenAuth))
 		r.Use(jwtauth.Authenticator)
-		r.Post("/", incomeHandler.CreateIncome)
+		r.Post("/{userid}", incomeHandler.CreateIncome)
 		r.Get("/{userid}", incomeHandler.GetTotalIncomeOfUser)
 		r.Delete("/{id}", incomeHandler.DeleteIncomeById)
 		r.Patch("/{userid}/{value}", incomeHandler.UpdateIncome)
@@ -106,6 +112,26 @@ func main() {
 		r.Get("/{userid}", goalHandler.ListAllGoals)
 		r.Patch("/{id}/{percentage}", goalHandler.UpdateGoal)
 		r.Delete("/{id}", goalHandler.DeleteGoal)
+	})
+
+	r.Route("/investments", func(r chi.Router) {
+		r.Use(jwtauth.Verifier(jwtConfig.TokenAuth))
+		r.Use(jwtauth.Authenticator)
+		r.Post("/", investmentHandler.CreateInvestmentHandler)
+		r.Get("/total/{userid}", investmentHandler.GetTotalOfInvestment)
+		r.Get("/allinvestment/{userid}", investmentHandler.GetAllOfInvestment)
+		r.Get("/allinvestment/next/{userid}/{lastinvid}", investmentHandler.GetNextPageOfAllInvestment)
+		r.Get("/allinvestment/previous/{userid}/{firstinvid}", investmentHandler.GetPreviousPageOfAllInvestment)
+		r.Get("/investment/name/{userid}/{stockname}", investmentHandler.GetInvesmentByName)
+		r.Get("/investment/id/{invId}", investmentHandler.GetInvesmentById)
+		r.Get("/investment/category/{userid}/{category}", investmentHandler.GetInvesmentByCategory)
+		r.Get("/investment/category/next/{userid}/{category}/{lastinvid}", investmentHandler.GetNextPageInvesmentByCategory)
+		r.Get("/investment/category/previous/{userid}/{category}/{firstInvId}", investmentHandler.GetPreviousPageInvesmentByCategory)
+		r.Get("/investment/metrics/{userid}", investmentHandler.GetAssetGrowth)
+		r.Get("/investment/portfolio/{userid}", investmentHandler.GetPortfolioDiversification)
+		r.Get("/investment/month/{userid}/{month}", investmentHandler.GetMonthInvestment)
+		r.Put("/sell", investmentHandler.UpdateSellInvesment)
+		r.Put("/supply", investmentHandler.UpdateSupplyInvesment)
 	})
 
 	http.ListenAndServe(config.GetPort(), r)

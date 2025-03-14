@@ -75,7 +75,7 @@ func (u *UserHandler) Auth(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, url, http.StatusTemporaryRedirect)
 }
 
-func (u *UserHandler) CallbackAuth(w http.ResponseWriter, r *http.Request) {
+func (u UserHandler) CallbackAuth(w http.ResponseWriter, r *http.Request) {
 	code := r.URL.Query().Get("code")
 
 	t, err := u.App.Exchange(context.Background(), code)
@@ -84,7 +84,6 @@ func (u *UserHandler) CallbackAuth(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-
 	client := u.App.Client(context.Background(), t)
 
 	resp, err := client.Get("https://www.googleapis.com/oauth2/v2/userinfo")
@@ -124,7 +123,7 @@ func (u *UserHandler) CallbackAuth(w http.ResponseWriter, r *http.Request) {
 	jwt := r.Context().Value("token").(*jwtauth.JWTAuth)
 
 	token, err := u.getJwt(newUser.Email, expJwt, jwt)
-
+	fmt.Print(token)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return

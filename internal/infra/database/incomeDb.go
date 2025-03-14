@@ -2,6 +2,7 @@ package database
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 
 	"github.com/rafaapcode/finance-app-backend/internal/entity"
@@ -58,8 +59,7 @@ func (inc *IncomeDb) GetIncomeValueByUserId(userId string) (float64, int, error)
 	err = stmt.QueryRow(userId).Scan(&value)
 
 	if err != nil {
-		fmt.Println(err.Error())
-		return 0.0, 404, err
+		return 0.0, 404, errors.New("user not found")
 	}
 
 	return value, 200, nil

@@ -20,10 +20,12 @@ type InvestmentHandler struct {
 	SupplyOpDb   database.SupplyOperationInterface
 }
 
-func NewInvestmentHandler(income database.IncomeInterface, extraIncomeDb database.ExtraIncomeInterface) *IncomeHandler {
-	return &IncomeHandler{
-		IncomeDb:      income,
-		ExtraIncomeDb: extraIncomeDb,
+func NewInvestmentHandler(investment database.InvestmentInterface, buyOp database.BuyOperationInterface, sellOp database.SellOperationInterface, supply database.SupplyOperationInterface) *InvestmentHandler {
+	return &InvestmentHandler{
+		InvestmentDb: investment,
+		BuyOpDb:      buyOp,
+		SellOpDb:     sellOp,
+		SupplyOpDb:   supply,
 	}
 }
 

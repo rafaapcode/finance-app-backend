@@ -6,8 +6,7 @@ type GetJwtInput struct {
 }
 
 type CreateIncomeDto struct {
-	UserId string  `json:"userId"`
-	Value  float64 `json:"value"`
+	Value float64 `json:"value"`
 }
 
 type CreateExtraIncomeDto struct {
