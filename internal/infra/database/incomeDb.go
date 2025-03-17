@@ -84,8 +84,8 @@ func (inc *IncomeDb) DeleteIncome(id string) (int, error) {
 
 	rowsAffected, err := result.RowsAffected()
 
-	if rowsAffected == 0 {
-		return 404, errors.New("Income not found")
+	if err != nil || rowsAffected == 0 {
+		return 404, errors.New("income not found")
 	}
 
 	return 200, nil
@@ -111,7 +111,7 @@ func (inc *IncomeDb) UpdateIncome(userId string, newValue float64) (int, error) 
 	rowsAffected, err := result.RowsAffected()
 
 	if err != nil || rowsAffected == 0 {
-		return 404, errors.New("Income of user not found")
+		return 404, errors.New("income of user not found")
 	}
 
 	return 200, nil

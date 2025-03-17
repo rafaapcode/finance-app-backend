@@ -60,7 +60,7 @@ func (extInc *ExtraIncomeDb) GetExtraIncomeById(id string) (*entity.ExtraIncome,
 
 	if err != nil {
 		fmt.Println(err.Error())
-		return nil, 404, errors.New("Extra income not found")
+		return nil, 404, errors.New("extra income not found")
 	}
 
 	return &extIncome, 200, nil
@@ -78,7 +78,7 @@ func (extInc *ExtraIncomeDb) DeleteExtraIncome(id string) (int, error) {
 	_, err = stmt.Exec(id)
 
 	if err != nil {
-		return 404, errors.New("Extra income not found")
+		return 404, errors.New("extra income not found")
 	}
 
 	return 200, nil
@@ -113,7 +113,7 @@ func (extInc *ExtraIncomeDb) GetAllExtraIncomeOfMonth(month int, userId string) 
 	}
 
 	if len(extraIncomeOfMonth) == 0 {
-		return extraIncomeOfMonth, 404, errors.New("Extra income not found")
+		return extraIncomeOfMonth, 404, errors.New("extra income not found")
 	}
 
 	return extraIncomeOfMonth, 200, nil
