@@ -60,7 +60,29 @@ func (incHand *IncomeHandler) CreateIncome(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	status, err := incHand.IncomeDb.CreateIncome(inc)
+	exists, status, err := incHand.IncomeDb.GetIncomeByUserId(inc.Userid)
+
+	if err != nil {
+		if err != nil {
+			msgRes.Message = err.Error()
+
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(status)
+			json.NewEncoder(w).Encode(msgRes)
+			return
+		}
+	}
+
+	if exists {
+		msgRes.Message = "Income already exists"
+
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(status)
+		json.NewEncoder(w).Encode(msgRes)
+		return
+	}
+
+	status, err = incHand.IncomeDb.CreateIncome(inc)
 	if err != nil {
 		msgRes.Message = err.Error()
 

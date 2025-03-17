@@ -104,3 +104,23 @@ func (inc *IncomeDb) UpdateIncome(userId string, newValue float64) (int, error) 
 
 	return 200, nil
 }
+
+func (inc *IncomeDb) GetIncomeByUserId(userId string) (bool, int, error) {
+	var userid string
+	stmt, err := inc.DB.Prepare("SELECT userid FROM income WHERE userid = $1")
+
+	if err != nil {
+		fmt.Println(err.Error())
+		return false, 500, err
+	}
+
+	defer stmt.Close()
+
+	err = stmt.QueryRow(userId).Scan(&userid)
+
+	if err != nil {
+		return false, 404, errors.New("user not found")
+	}
+
+	return true, 200, nil
+}

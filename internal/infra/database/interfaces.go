@@ -48,6 +48,7 @@ type IncomeInterface interface {
 	GetIncomeValueByUserId(userId string) (float64, int, error)
 	DeleteIncome(id string) (int, error)
 	UpdateIncome(userId string, newValue float64) (int, error)
+	GetIncomeByUserId(userId string) (bool, int, error)
 }
 
 type ExtraIncomeInterface interface {
