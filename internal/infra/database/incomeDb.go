@@ -75,11 +75,17 @@ func (inc *IncomeDb) DeleteIncome(id string) (int, error) {
 
 	defer stmt.Close()
 
-	_, err = stmt.Exec(id)
+	result, err := stmt.Exec(id)
 
 	if err != nil {
 		fmt.Println(err.Error())
 		return 404, err
+	}
+
+	rowsAffected, err := result.RowsAffected()
+
+	if rowsAffected == 0 {
+		return 404, errors.New("Income not found")
 	}
 
 	return 200, nil
@@ -95,11 +101,17 @@ func (inc *IncomeDb) UpdateIncome(userId string, newValue float64) (int, error) 
 
 	defer stmt.Close()
 
-	_, err = stmt.Exec(newValue, userId)
+	result, err := stmt.Exec(newValue, userId)
 
 	if err != nil {
 		fmt.Println(err.Error())
 		return 404, err
+	}
+
+	rowsAffected, err := result.RowsAffected()
+
+	if err != nil || rowsAffected == 0 {
+		return 404, errors.New("Income of user not found")
 	}
 
 	return 200, nil
@@ -119,7 +131,7 @@ func (inc *IncomeDb) GetIncomeByUserId(userId string) (bool, int, error) {
 	err = stmt.QueryRow(userId).Scan(&userid)
 
 	if err != nil {
-		return false, 404, errors.New("user not found")
+		return false, 404, errors.New("income of user not found")
 	}
 
 	return true, 200, nil

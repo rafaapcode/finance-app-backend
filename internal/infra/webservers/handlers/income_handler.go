@@ -60,29 +60,18 @@ func (incHand *IncomeHandler) CreateIncome(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	exists, status, err := incHand.IncomeDb.GetIncomeByUserId(inc.Userid)
-
-	if err != nil {
-		if err != nil {
-			msgRes.Message = err.Error()
-
-			w.Header().Set("Content-Type", "application/json")
-			w.WriteHeader(status)
-			json.NewEncoder(w).Encode(msgRes)
-			return
-		}
-	}
+	exists, _, _ := incHand.IncomeDb.GetIncomeByUserId(inc.Userid)
 
 	if exists {
 		msgRes.Message = "Income already exists"
 
 		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(status)
+		w.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(w).Encode(msgRes)
 		return
 	}
 
-	status, err = incHand.IncomeDb.CreateIncome(inc)
+	status, err := incHand.IncomeDb.CreateIncome(inc)
 	if err != nil {
 		msgRes.Message = err.Error()
 
@@ -225,7 +214,7 @@ func (incHand *IncomeHandler) UpdateIncome(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	msgRes.Message = "Income deleted successfully !"
+	msgRes.Message = "Income updated successfully !"
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
