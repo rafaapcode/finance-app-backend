@@ -2,6 +2,7 @@ package database
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 
 	"github.com/rafaapcode/finance-app-backend/internal/entity"
@@ -50,7 +51,7 @@ func (userDb *UserDb) GetUser(id string) (*entity.User, int, error) {
 
 	if err != nil {
 		fmt.Println(err.Error())
-		return nil, 404, err
+		return nil, 404, errors.New("user not found")
 	}
 
 	return &user, 200, nil

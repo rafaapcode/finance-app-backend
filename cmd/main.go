@@ -44,7 +44,7 @@ func main() {
 	incomeDb := database.NewIncomeDB(db)
 	extraIncomeDb := database.NewExtraIncomeDB(db)
 	incomeHandler := handlers.NewIncomeHandler(incomeDb, extraIncomeDb)
-	extraHandler := handlers.NewExtraHandler(extraIncomeDb)
+	extraHandler := handlers.NewExtraHandler(extraIncomeDb, usersDb)
 
 	outcomeDb := database.NewOutcomeDb(db)
 	outcomeHandler := handlers.NewOutcomeHandler(outcomeDb)
@@ -86,7 +86,6 @@ func main() {
 		r.Post("/", extraHandler.CreateExtraIncome)
 		r.Get("/allofmonth/{userid}/{month}", extraHandler.GetAllExtraIncomeOfMonth)
 		r.Get("/{id}", extraHandler.GetExtraIncomeById)
-		r.Delete("/{id}", extraHandler.DeleteExtraIncome)
 	})
 
 	r.Route("/outcome", func(r chi.Router) {

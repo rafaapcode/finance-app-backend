@@ -86,7 +86,7 @@ func (extInc *ExtraIncomeDb) DeleteExtraIncome(id string) (int, error) {
 
 func (extInc *ExtraIncomeDb) GetAllExtraIncomeOfMonth(month int, userId string) ([]entity.ExtraIncome, int, error) {
 	var extraIncomeOfMonth []entity.ExtraIncome
-	stmt, err := extInc.DB.Prepare("SELECT id, userid, category, value, date FROM extraincome WHERE date_part('month', buydate) = $1 AND userid = $2")
+	stmt, err := extInc.DB.Prepare("SELECT id, userid, category, value, date FROM extraincome WHERE date_part('month', date) = $1 AND userid = $2")
 
 	if err != nil {
 		return extraIncomeOfMonth, 500, err
@@ -97,7 +97,7 @@ func (extInc *ExtraIncomeDb) GetAllExtraIncomeOfMonth(month int, userId string) 
 
 	if err != nil {
 		fmt.Println(err.Error())
-		return extraIncomeOfMonth, 404, errors.New("Extra income not found")
+		return extraIncomeOfMonth, 404, errors.New("extra income not found")
 	}
 
 	for rows.Next() {

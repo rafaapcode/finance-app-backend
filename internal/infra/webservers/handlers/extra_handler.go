@@ -14,11 +14,13 @@ import (
 
 type ExtraHandler struct {
 	ExtraIncomeDb database.ExtraIncomeInterface
+	UserDb        database.UserInterface
 }
 
-func NewExtraHandler(extraIncomeDb database.ExtraIncomeInterface) *ExtraHandler {
+func NewExtraHandler(extraIncomeDb database.ExtraIncomeInterface, userDb database.UserInterface) *ExtraHandler {
 	return &ExtraHandler{
 		ExtraIncomeDb: extraIncomeDb,
+		UserDb:        userDb,
 	}
 }
 
@@ -32,6 +34,17 @@ func (extHand *ExtraHandler) CreateExtraIncome(w http.ResponseWriter, r *http.Re
 
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(msgRes)
+		return
+	}
+
+	_, status, err := extHand.UserDb.GetUser(extraIncome.UserId)
+
+	if err != nil {
+		msgRes.Message = err.Error()
+
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(status)
 		json.NewEncoder(w).Encode(msgRes)
 		return
 	}
@@ -56,7 +69,7 @@ func (extHand *ExtraHandler) CreateExtraIncome(w http.ResponseWriter, r *http.Re
 		return
 	}
 
-	status, err := extHand.ExtraIncomeDb.CreateExtraIncome(ext)
+	status, err = extHand.ExtraIncomeDb.CreateExtraIncome(ext)
 
 	if err != nil {
 		msgRes.Message = err.Error()
