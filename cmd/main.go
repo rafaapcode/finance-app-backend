@@ -50,7 +50,7 @@ func main() {
 	outcomeHandler := handlers.NewOutcomeHandler(outcomeDb)
 
 	goalsDb := database.NewGoalsDB(db)
-	goalHandler := handlers.NewGoalsHandler(goalsDb)
+	goalHandler := handlers.NewGoalsHandler(goalsDb, usersDb)
 
 	investmentDb := database.NewInvestmentDB(db)
 	buyOp := database.NewBuyOperationDB(db)

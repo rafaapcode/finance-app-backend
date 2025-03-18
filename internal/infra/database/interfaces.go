@@ -64,6 +64,8 @@ type GoalsInterface interface {
 	UpdateGoal(id string, newPercentage float64) (int, error)
 	DeleteGoal(goalId string) (int, error)
 	ListAllGoals(userId string) ([]entity.Goals, int, error)
+	SumPercentageOfAllGoals(userId string, percentage float64) (float64, int, error)
+	GetGoal(id string) (*entity.Goals, int, error)
 }
 
 type SellOperationInterface interface {

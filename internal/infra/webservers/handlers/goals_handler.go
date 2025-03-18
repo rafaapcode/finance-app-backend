@@ -14,11 +14,13 @@ import (
 
 type GoalsHandler struct {
 	GoalsDb database.GoalsInterface
+	UserDb  database.UserInterface
 }
 
-func NewGoalsHandler(goals database.GoalsInterface) *GoalsHandler {
+func NewGoalsHandler(goals database.GoalsInterface, userdb database.UserInterface) *GoalsHandler {
 	return &GoalsHandler{
 		GoalsDb: goals,
+		UserDb:  userdb,
 	}
 }
 
@@ -32,6 +34,37 @@ func (goalsHand *GoalsHandler) CreateGoals(w http.ResponseWriter, r *http.Reques
 
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(msgRes)
+		return
+	}
+
+	_, _, err = goalsHand.UserDb.GetUser(goals.UserId)
+
+	if err != nil {
+		msgRes.Message = err.Error()
+
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(msgRes)
+		return
+	}
+
+	if goals.Percentage > 1 {
+		msgRes.Message = "percentage must be less than 100%"
+
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(msgRes)
+		return
+	}
+
+	_, status, err := goalsHand.GoalsDb.SumPercentageOfAllGoals(goals.UserId, goals.Percentage)
+
+	if err != nil {
+		msgRes.Message = err.Error()
+
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(status)
 		json.NewEncoder(w).Encode(msgRes)
 		return
 	}
@@ -56,7 +89,7 @@ func (goalsHand *GoalsHandler) CreateGoals(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	status, err := goalsHand.GoalsDb.CreateGoal(goal)
+	status, err = goalsHand.GoalsDb.CreateGoal(goal)
 	if err != nil {
 		msgRes.Message = err.Error()
 
@@ -117,6 +150,17 @@ func (goalsHand *GoalsHandler) UpdateGoal(w http.ResponseWriter, r *http.Request
 		return
 	}
 
+	goal, status, err := goalsHand.GoalsDb.GetGoal(id)
+
+	if err != nil {
+		msgRes.Message = err.Error()
+
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(status)
+		json.NewEncoder(w).Encode(msgRes)
+		return
+	}
+
 	percentageValue, err := strconv.ParseFloat(newPercentage, 64)
 
 	if err != nil {
@@ -127,8 +171,26 @@ func (goalsHand *GoalsHandler) UpdateGoal(w http.ResponseWriter, r *http.Request
 		json.NewEncoder(w).Encode(msgRes)
 		return
 	}
+	var diffPercentage float64
 
-	status, err := goalsHand.GoalsDb.UpdateGoal(id, percentageValue)
+	if goal.Percentage > percentageValue {
+		diffPercentage = goal.Percentage - percentageValue
+	} else {
+		diffPercentage = percentageValue - goal.Percentage
+	}
+
+	_, status, err = goalsHand.GoalsDb.SumPercentageOfAllGoals(id, diffPercentage)
+
+	if err != nil {
+		msgRes.Message = err.Error()
+
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(status)
+		json.NewEncoder(w).Encode(msgRes)
+		return
+	}
+
+	status, err = goalsHand.GoalsDb.UpdateGoal(id, percentageValue)
 	if err != nil {
 		msgRes.Message = err.Error()
 
@@ -158,7 +220,18 @@ func (goalsHand *GoalsHandler) DeleteGoal(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	status, err := goalsHand.GoalsDb.DeleteGoal(id)
+	_, status, err := goalsHand.GoalsDb.GetGoal(id)
+
+	if err != nil {
+		msgRes.Message = err.Error()
+
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(status)
+		json.NewEncoder(w).Encode(msgRes)
+		return
+	}
+
+	status, err = goalsHand.GoalsDb.DeleteGoal(id)
 	if err != nil {
 		msgRes.Message = err.Error()
 
