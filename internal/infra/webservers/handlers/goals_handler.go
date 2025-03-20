@@ -138,6 +138,7 @@ func (goalsHand *GoalsHandler) ListAllGoals(w http.ResponseWriter, r *http.Reque
 
 func (goalsHand *GoalsHandler) UpdateGoal(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
+	userid := chi.URLParam(r, "userid")
 	newPercentage := chi.URLParam(r, "percentage")
 	var msgRes = pkg.NewMessageResponse("")
 
@@ -146,17 +147,6 @@ func (goalsHand *GoalsHandler) UpdateGoal(w http.ResponseWriter, r *http.Request
 
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(msgRes)
-		return
-	}
-
-	goal, status, err := goalsHand.GoalsDb.GetGoal(id)
-
-	if err != nil {
-		msgRes.Message = err.Error()
-
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(status)
 		json.NewEncoder(w).Encode(msgRes)
 		return
 	}
@@ -171,15 +161,8 @@ func (goalsHand *GoalsHandler) UpdateGoal(w http.ResponseWriter, r *http.Request
 		json.NewEncoder(w).Encode(msgRes)
 		return
 	}
-	var diffPercentage float64
 
-	if goal.Percentage > percentageValue {
-		diffPercentage = goal.Percentage - percentageValue
-	} else {
-		diffPercentage = percentageValue - goal.Percentage
-	}
-
-	_, status, err = goalsHand.GoalsDb.SumPercentageOfAllGoals(id, diffPercentage)
+	_, status, err := goalsHand.GoalsDb.SumPercentageForUpdateGoals(userid, id, percentageValue)
 
 	if err != nil {
 		msgRes.Message = err.Error()

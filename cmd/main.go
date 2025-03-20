@@ -109,7 +109,7 @@ func main() {
 		r.Use(jwtauth.Authenticator)
 		r.Post("/", goalHandler.CreateGoals)
 		r.Get("/{userid}", goalHandler.ListAllGoals)
-		r.Patch("/{id}/{percentage}", goalHandler.UpdateGoal)
+		r.Patch("/{userid}/{id}/{percentage}", goalHandler.UpdateGoal)
 		r.Delete("/{id}", goalHandler.DeleteGoal)
 	})
 

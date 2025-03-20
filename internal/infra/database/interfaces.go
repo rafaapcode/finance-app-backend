@@ -65,6 +65,7 @@ type GoalsInterface interface {
 	DeleteGoal(goalId string) (int, error)
 	ListAllGoals(userId string) ([]entity.Goals, int, error)
 	SumPercentageOfAllGoals(userId string, percentage float64) (float64, int, error)
+	SumPercentageForUpdateGoals(userId, goalid string, percentage float64) (float64, int, error)
 	GetGoal(id string) (*entity.Goals, int, error)
 }
 

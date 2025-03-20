@@ -123,7 +123,7 @@ func (g *GoalsDb) ListAllGoals(userId string) ([]entity.Goals, int, error) {
 
 func (g *GoalsDb) SumPercentageOfAllGoals(userId string, percentage float64) (float64, int, error) {
 	var sumPercentage sql.NullFloat64
-	stmt, err := g.DB.Prepare("SELECT sum(percentage) FROM goals WHERE userid = $1 OR id = $1")
+	stmt, err := g.DB.Prepare("SELECT sum(percentage) FROM goals WHERE userid = $1")
 
 	if err != nil {
 		fmt.Println(err.Error())
@@ -142,9 +142,44 @@ func (g *GoalsDb) SumPercentageOfAllGoals(userId string, percentage float64) (fl
 	totalPercentage := sumPercentage.Float64
 	totalPercentage += percentage
 
-	fmt.Println(totalPercentage)
-
 	if sumPercentage.Float64 >= 1.00 || totalPercentage > 1.00 {
+		return 0, 400, errors.New("your goals achieve 100% of your investments")
+	}
+
+	return sumPercentage.Float64, 200, nil
+}
+
+func (g *GoalsDb) SumPercentageForUpdateGoals(userId, goalid string, percentage float64) (float64, int, error) {
+	var sumPercentage sql.NullFloat64
+	stmt, err := g.DB.Prepare("SELECT sum(percentage) FROM goals WHERE userid = $1")
+
+	if err != nil {
+		fmt.Println(err.Error())
+		return 0, 500, err
+	}
+
+	defer stmt.Close()
+
+	err = stmt.QueryRow(userId).Scan(&sumPercentage)
+
+	if err != nil {
+		fmt.Println(err.Error())
+		return 0, 404, err
+	}
+
+	totalPercentage := sumPercentage.Float64
+
+	goal, status, err := g.GetGoal(goalid)
+
+	if err != nil {
+		fmt.Println(err.Error())
+		return 0, status, err
+	}
+
+	totalPercentage -= goal.Percentage
+	totalPercentage += percentage
+
+	if sumPercentage.Float64 > 1.00 || totalPercentage > 1.00 {
 		return 0, 400, errors.New("your goals achieve 100% of your investments")
 	}
 
