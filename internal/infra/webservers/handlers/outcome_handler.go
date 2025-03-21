@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/rafaapcode/finance-app-backend/internal/dto"
@@ -35,8 +36,7 @@ func (outHand *OutcomeHandler) CreateOutcome(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	out, err := entity.NewOutcome(outcome.OutcomeType, outcome.Category, outcome.PaymentMethod, outcome.UserId, outcome.Value, outcome.Notification, outcome.ExpireDate)
-
+	out, err := entity.NewOutcome(strings.ToLower(outcome.OutcomeType), outcome.Category, outcome.PaymentMethod, outcome.UserId, outcome.Value, outcome.Notification, outcome.ExpireDate)
 	if err != nil {
 		res.Message = err.Error()
 		w.Header().Set("Content-Type", "application/json")
@@ -44,7 +44,6 @@ func (outHand *OutcomeHandler) CreateOutcome(w http.ResponseWriter, r *http.Requ
 		json.NewEncoder(w).Encode(res)
 		return
 	}
-
 	err = out.Validate()
 
 	if err != nil {
@@ -136,6 +135,15 @@ func (outHand *OutcomeHandler) GetAllOutcomeOfMonth(w http.ResponseWriter, r *ht
 
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(status)
+		json.NewEncoder(w).Encode(errMsg)
+		return
+	}
+
+	if outcomes == nil {
+		errMsg.Message = "Nenhuma saída encontrada para esse mês"
+
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusNotFound)
 		json.NewEncoder(w).Encode(errMsg)
 		return
 	}

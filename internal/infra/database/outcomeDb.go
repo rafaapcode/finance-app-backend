@@ -2,7 +2,9 @@ package database
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
+	"time"
 
 	"github.com/rafaapcode/finance-app-backend/internal/entity"
 )
@@ -64,7 +66,7 @@ func (outDb *OutcomeDb) GetOutcomeById(id string) (*entity.Outcome, int, error) 
 
 	if err != nil {
 		fmt.Println(err.Error())
-		return nil, 404, err
+		return nil, 404, errors.New("saída não encontrada")
 	}
 
 	return &outcome, 200, nil
@@ -85,7 +87,7 @@ func (outDb *OutcomeDb) GetAllOutcomeOfMonth(month int, userId string) ([]entity
 
 	if err != nil {
 		fmt.Println(err.Error())
-		return nil, 404, err
+		return nil, 404, errors.New("saída não encontrada")
 	}
 
 	defer rows.Close()
@@ -250,17 +252,16 @@ func (outDb *OutcomeDb) GetAllOutcomeByType(typeOutcome string, userId string) (
 
 func (outDb *OutcomeDb) GetOutcomeAboutToExpire(daysToExpire int, userId string) ([]entity.Outcome, int, error) {
 	var outcomes []entity.Outcome
-
-	stmt, err := outDb.DB.Prepare("SELECT id, userid, type, category, value, paymentmethod, notification, expiredate, createdat FROM outcome WHERE expiredate BETWEEN CURRENT_DATE AND CURRENT_DATE + INTERVAL '$1 days' AND userid = $2")
+	stmt, err := outDb.DB.Prepare("SELECT id, userid, type, category, value, paymentmethod, notification, expiredate, createdat FROM outcome WHERE make_date(EXTRACT(YEAR FROM CURRENT_DATE)::INT, EXTRACT(MONTH FROM CURRENT_DATE)::INT, EXTRACT(DAY FROM expiredate)::INT) BETWEEN CURRENT_DATE AND $2 AND userid = $3")
 
 	if err != nil {
 		fmt.Println(err.Error())
 		return outcomes, 500, err
 	}
 	defer stmt.Close()
+	futureDate := time.Now().Add(time.Hour * 24 * time.Duration(daysToExpire))
 
-	rows, err := stmt.Query(daysToExpire, userId)
-
+	rows, err := stmt.Query(futureDate, userId)
 	if err != nil {
 		fmt.Println(err.Error())
 		return outcomes, 404, err
@@ -365,9 +366,16 @@ func (outDb *OutcomeDb) DeleteOutcome(id string) (string, int, error) {
 	}
 	defer stmt.Close()
 
-	_, err = stmt.Exec(id)
+	results, err := stmt.Exec(id)
+
 	if err != nil {
 		fmt.Println(err.Error())
+		return "Saída não encontrada", 404, err
+	}
+
+	lastAffected, err := results.RowsAffected()
+
+	if lastAffected == 0 || err != nil {
 		return "Saída não encontrada", 404, err
 	}
 
